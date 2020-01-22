@@ -5,7 +5,7 @@
  * Display Suite 1 column template with layout wrapper.
  */
 ?>
-<<?php print $layout_wrapper; print $layout_attributes; ?> class="ds-1col <?php print $classes;?> clearfix">
+<<?php print $layout_wrapper; print $layout_attributes; ?> class="ds-1col <?php print implode(' ', $classes);?> clearfix">
 
   <?php if (isset($title_suffix['contextual_links'])): ?>
   <?php print render($title_suffix['contextual_links']); ?>

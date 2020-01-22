@@ -14,21 +14,21 @@ function ds_ds_fields_info($entity_type) {
      Custom fields.
     -------------------------------------------------------------- */
 
-  ctools_include('export');
-  $custom_fields = ctools_export_crud_load_all('ds_fields');
-  foreach ($custom_fields as $key => $field) {
-    if (isset($field->entities[$entity_type])) {
-      $fields[$entity_type][$key] = array(
-        'title' => $field->label,
-        'field_type' => $field->field_type,
-        'properties' => $field->properties,
-      );
-      if (!empty($field->ui_limit)) {
-        $lines = explode("\n", $field->ui_limit);
-        $fields[$entity_type][$key]['ui_limit'] = $lines;
-      }
-    }
-  }
+//  ctools_include('export');
+//  $custom_fields = ctools_export_crud_load_all('ds_fields');
+//  foreach ($custom_fields as $key => $field) {
+//    if (isset($field->entities[$entity_type])) {
+//      $fields[$entity_type][$key] = array(
+//        'title' => $field->label,
+//        'field_type' => $field->field_type,
+//        'properties' => $field->properties,
+//      );
+//      if (!empty($field->ui_limit)) {
+//        $lines = explode("\n", $field->ui_limit);
+//        $fields[$entity_type][$key]['ui_limit'] = $lines;
+//      }
+//    }
+//  }
 
   /* --------------------------------------------------------------
      General node fields.
@@ -97,10 +97,10 @@ function ds_ds_fields_info($entity_type) {
   );
 
   // Created time.
-  $format_types = system_get_date_types();
+  $date_formats = system_get_date_formats();
   $date_formatters = array();
-  foreach ($format_types as $formatter) {
-    $date_formatters['ds_post_date_' . $formatter['type']] = t($formatter['title']);
+  foreach ($date_formats as $formatter) {
+    $date_formatters['ds_post_date_' . $formatter['name']] = t($formatter['label']);
   }
   $fields['node']['post_date'] = array(
     'title' => t('Post date'),
@@ -198,10 +198,10 @@ function ds_ds_fields_info($entity_type) {
     );
 
     // Created time.
-    $format_types = system_get_date_types();
+    $format_types = system_get_date_formats();
     $date_formatters = array();
     foreach ($format_types as $formatter) {
-      $date_formatters['ds_post_date_' . $formatter['type']] = t($formatter['title']);
+      $date_formatters['ds_post_date_' . $formatter['name']] = t($formatter['label']);
     }
     $fields['comment']['post_date'] = array(
       'title' => t('Post date'),

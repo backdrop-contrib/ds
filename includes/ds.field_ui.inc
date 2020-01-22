@@ -16,7 +16,7 @@ function ds_field_ui_fields_layouts(&$form, &$form_state) {
   $bundle = $form['#bundle'];
   $view_mode = $form['#view_mode'];
 
-  $form['#export_id'] = $entity_type . '|' . $bundle . '|' . $view_mode;
+  $form['#export_id'] = $entity_type . '.' . $bundle . '.' . $view_mode;
 
   // Create vertical tabs.
   ds_field_ui_create_vertical_tabs($form);
@@ -88,8 +88,8 @@ function ds_field_ui_create_vertical_tabs(&$form) {
       '#suffix' => '</div>',
       '#tree' => TRUE,
     );
-    $form['#attached']['js'][] = 'misc/form.js';
-    $form['#attached']['js'][] = 'misc/collapse.js';
+    $form['#attached']['js'][] = 'core/misc/form.js';
+    $form['#attached']['js'][] = 'core/misc/collapse.js';
   }
 
   $view_mode_admin_access = user_access('admin_view_modes') && module_exists('ds_ui');
@@ -123,7 +123,7 @@ function ds_disable_layout_field_settings_form($form, &$form_state, $id = '') {
     $form['#layout'] = $layout;
     $form['#export_id'] = $id;
     return confirm_form($form,
-      t('Are you sure you want to disable the layout and field settings for %layout?', array('%layout' => implode(', ', explode('|', $layout->id)))),
+      t('Are you sure you want to disable the layout and field settings for %layout?', array('%layout' => implode(', ', explode('.', $layout->id)))),
       drupal_get_destination(),
       t('This action cannot be undone.'),
       t('Disable'),
@@ -173,7 +173,7 @@ function ds_enable_layout_field_settings_form($form, &$form_state, $id = '') {
     $form['#layout'] = $layout;
     $form['#export_id'] = $id;
     return confirm_form($form,
-      t('Are you sure you want to enable the layout and field settings for %layout?', array('%layout' => implode(', ', explode('|', $layout->id)))),
+      t('Are you sure you want to enable the layout and field settings for %layout?', array('%layout' => implode(', ', explode('.', $layout->id)))),
       drupal_get_destination(),
       t('This action cannot be undone.'),
       t('Enable'),
@@ -221,7 +221,7 @@ function ds_revert_layout_field_settings_form($form, &$form_state, $id = '') {
   if (isset($layout) && $layout->export_type == 3) {
     $form['#layout'] = $layout;
     return confirm_form($form,
-      t('Are you sure you want to revert the layout for %layout?', array('%layout' => implode(', ', explode('|', $layout->id)))),
+      t('Are you sure you want to revert the layout for %layout?', array('%layout' => implode(', ', explode('.', $layout->id)))),
       drupal_get_destination(),
       t('This action cannot be undone.'),
       t('Revert'),
@@ -239,13 +239,13 @@ function ds_revert_layout_field_settings_form($form, &$form_state, $id = '') {
 function ds_revert_layout_field_settings_form_submit(&$form, &$form_state) {
   $layout = $form['#layout'];
 
-  db_delete('ds_field_settings')
-    ->condition('id', $layout->id)
-    ->execute();
+//  db_delete('ds_field_settings')
+//    ->condition('id', $layout->id)
+//    ->execute();
 
-  db_delete('ds_layout_settings')
-    ->condition('id', $layout->id)
-    ->execute();
+//  db_delete('ds_layout_settings')
+//    ->condition('id', $layout->id)
+//    ->execute();
 
   // Clear the ds_fields cache.
   cache_clear_all('ds_fields:', 'cache', TRUE);
@@ -468,7 +468,7 @@ function ds_field_ui_layout_change($form, $form_state, $entity_type = '', $bundl
     $form['#old_layout'] = $old_layout;
     $form['#new_layout'] = $new_layout;
     $form['#new_layout_key'] = $new_layout_key;
-    $form['#export_id'] = $entity_type . '|' . $bundle . '|' . $view_mode;
+    $form['#export_id'] = $entity_type . '.' . $bundle . '.' . $view_mode;
 
     $form['info'] = array(
       '#markup' => t('You are changing from %old to %new layout for !bundle in !view_mode view mode.', array('%old' => $old_layout['label'], '%new' => $new_layout['label'], '!bundle' => $bundle, '!view_mode' => $view_mode)),
@@ -606,14 +606,14 @@ function ds_field_ui_layout_change_submit($form, &$form_state) {
   }
 
   // Remove old record.
-  db_delete('ds_layout_settings')
-    ->condition('entity_type', $entity_type)
-    ->condition('bundle', $bundle)
-    ->condition('view_mode', $view_mode)
-    ->execute();
+//  db_delete('ds_layout_settings')
+//    ->condition('entity_type', $entity_type)
+//    ->condition('bundle', $bundle)
+//    ->condition('view_mode', $view_mode)
+//    ->execute();
 
   // Save new record.
-  drupal_write_record('ds_layout_settings', $record);
+  ds_save_layout_settings($record);
 
   // Clear entity info cache.
   cache_clear_all('entity_info', 'cache', TRUE);
@@ -637,7 +637,6 @@ function ds_field_ui_layouts_save($form, &$form_state) {
   $layout = $form_state['values']['additional_settings']['layout'];
   $old_layout = $form_state['values']['additional_settings']['old_layout'];
   $new_layout = ($layout != $old_layout) || empty($old_layout);
-
   // Save layout and add regions if necessary.
   $record = new stdClass;
   $record->id = $form['#export_id'];
@@ -651,11 +650,7 @@ function ds_field_ui_layouts_save($form, &$form_state) {
 
   // Remove old layout if necessary.
   if ($new_layout && !empty($old_layout)) {
-    db_delete('ds_layout_settings')
-      ->condition('entity_type', $entity_type)
-      ->condition('bundle', $bundle)
-      ->condition('view_mode', $view_mode)
-      ->execute();
+    config('ds.layout.' . $entity_type . '.' . $bundle . '.' . $view_mode)->delete();
   }
 
   if ($new_layout && !empty($layout)) {
@@ -704,7 +699,7 @@ function ds_field_ui_layouts_save($form, &$form_state) {
     }
 
     // Save the record.
-    drupal_write_record('ds_layout_settings', $record);
+    ds_save_layout_settings($record);
   }
   // Update existing layout.
   elseif (!empty($layout)) {
@@ -778,18 +773,10 @@ function ds_field_ui_layouts_save($form, &$form_state) {
       $record->settings['layout_disable_css'] = FALSE;
     }
 
-    $record->settings = $record->settings;
-
     // Let other modules alter the layout settings.
     drupal_alter('ds_layout_settings', $record, $form_state);
 
-    $l = $form['#ds_layout'];
-    if ($l->export_type == 2) {
-      drupal_write_record('ds_layout_settings', $record);
-    }
-    else {
-      drupal_write_record('ds_layout_settings', $record, array('id'));
-    }
+    ds_save_layout_settings($record);
 
     // Clear entity info cache.
     cache_clear_all('entity_info', 'cache', TRUE);
@@ -819,13 +806,6 @@ function ds_field_ui_fields_save($form, &$form_state) {
   $entity_type = $form['#entity_type'];
   $bundle = $form['#bundle'];
   $view_mode = $form['#view_mode'];
-
-  // Delete previous field configuration configuration.
-  db_delete('ds_field_settings')
-    ->condition('entity_type', $entity_type)
-    ->condition('bundle', $bundle)
-    ->condition('view_mode', $view_mode)
-    ->execute();
 
   if (empty($form_state['layout_saved'])) {
     return;
@@ -863,15 +843,12 @@ function ds_field_ui_fields_save($form, &$form_state) {
   drupal_alter('ds_field_settings', $field_settings, $form, $form_state);
 
   // Save the record.
-  if (!empty($field_settings)) {
-    $record = new stdClass;
-    $record->id = $form['#export_id'];
-    $record->entity_type = $entity_type;
-    $record->bundle = $bundle;
-    $record->view_mode = $view_mode;
-    $record->settings = $field_settings;
-    drupal_write_record('ds_field_settings', $record);
-  }
+  $record = new stdClass;
+  $record->entity_type = $entity_type;
+  $record->bundle = $bundle;
+  $record->view_mode = $view_mode;
+  $record->fields = $field_settings;
+  ds_save_layout_settings($record);
 
   // Clear the ds_fields cache.
   cache_clear_all('ds_fields:', 'cache', TRUE);
@@ -884,45 +861,31 @@ function ds_field_ui_fields_save($form, &$form_state) {
 function ds_field_ui_layout_clone($form, &$form_state) {
 
   $clone = $form_state['values']['additional_settings']['clone'];
+  list($ce, $cb, $cv) = explode('.', $clone);
+
   $entity_type = $form['#entity_type'];
   $bundle = $form['#bundle'];
   $view_mode = $form['#view_mode'];
 
-  ctools_include('export');
-  $layout = ctools_export_crud_load('ds_layout_settings', $clone);
-
-  // Delete previous layout settings configuration.
-  db_delete('ds_layout_settings')
-    ->condition('entity_type', $entity_type)
-    ->condition('bundle', $bundle)
-    ->condition('view_mode', $view_mode)
-    ->execute();
-
-  // Delete previous field configuration configuration.
-  db_delete('ds_field_settings')
-    ->condition('entity_type', $entity_type)
-    ->condition('bundle', $bundle)
-    ->condition('view_mode', $view_mode)
-    ->execute();
+  $layout = ds_get_layout_settings($ce, $cb, $cv);
 
   // Save new layout record for ds.
   if ($layout) {
     $record = new stdClass();
-    $record->id = $form['#export_id'];
     $record->entity_type = $entity_type;
     $record->bundle = $bundle;
     $record->view_mode = $view_mode;
     $record->layout = $layout->layout;
     $record->settings = $layout->settings;
+    $record->fields = $layout->fields;
 
     // Let other modules alter the layout settings.
     drupal_alter('ds_layout_settings', $record, $form_state);
 
     // Save layout record.
-    drupal_write_record('ds_layout_settings', $record);
+    ds_save_layout_settings($record);
 
     // Copy the view mode settings.
-    list($ce, $cb, $cv) = explode('|', $clone);
     _ds_field_ui_clone_view_mode_settings($entity_type, $bundle, $view_mode, $cv);
 
     // Clear entity info cache.
@@ -1162,7 +1125,7 @@ function ds_field_settings_form($field, &$form_state, $entity_form, $view_mode) 
     }
   }
 
-  $formatter_name = $form_state['complete form']['fields'][$field['name']]['format']['type']['#value'];
+  $formatter_name = $form_state['complete_form']['fields'][$field['name']]['format']['type']['#value'];
 
   // Allow other modules to alter the formatter settings form.
   $context = array(
@@ -1583,13 +1546,7 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
     '#weight' => -100,
   );
 
-  ctools_include('export');
-  $layout = new stdClass();
-  $ds_layout_settings = ctools_export_crud_load_all('ds_layout_settings');
-  if (isset($ds_layout_settings[$form['#export_id']])) {
-    $layout = $ds_layout_settings[$form['#export_id']];
-  }
-
+  $layout = ds_get_layout_settings($entity_type, $bundle, $view_mode);
   if (!empty($layout) && isset($layout->layout) && isset($ds_layouts[$layout->layout]) && empty($layout->disabled)) {
     $layout->settings = $layout->settings;
     $layout->regions = $ds_layouts[$layout->layout]['regions'];
@@ -1780,19 +1737,18 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
     if ($view_mode != 'form') {
       // See if we can clone from another view mode.
       $options = array();
-      $ds_layout_settings = ctools_export_crud_load_all('ds_layout_settings');
+
+      $ds_layout_settings = ds_get_layout_settings($entity_type, $bundle);
       foreach ($ds_layout_settings as $row) {
         // Do not clone from form layouts.
         if ($row->view_mode == 'form') {
           continue;
         }
-        if ($row->entity_type == $entity_type && $row->bundle == $bundle) {
-          $name = drupal_ucfirst(str_replace('_', ' ', $row->entity_type)) . ' > ' . drupal_ucfirst(str_replace('_', ' ', $row->bundle)) . ' > ' . drupal_ucfirst(str_replace('_', ' ', $row->view_mode));
-          if (!empty($row->disabled)) {
-            $name .= ' ' . t('(disabled)');
-          }
-          $options[$row->id] = $name;
+        $name = drupal_ucfirst(str_replace('_', ' ', $row->entity_type)) . ' > ' . drupal_ucfirst(str_replace('_', ' ', $row->bundle)) . ' > ' . drupal_ucfirst(str_replace('_', ' ', $row->view_mode));
+        if (!empty($row->disabled)) {
+          $name .= ' ' . t('(disabled)');
         }
+        $options[$row->entity_type . '.' . $row->bundle . '.' . $row->view_mode] = $name;
       }
 
       if (!empty($options)) {
@@ -2015,18 +1971,9 @@ function ds_field_ui_change_layout_submit($form, &$form_state) {
     $disable_css = FALSE;
   }
 
-  $record = db_select('ds_layout_settings')
-    ->fields('ds_layout_settings')
-    ->condition('entity_type', $values['ds_entity_type'])
-    ->condition('bundle', $values['ds_bundle'])
-    ->condition('view_mode', $values['ds_view_mode'])
-    ->execute()
-    ->fetchObject();
-
-  $record->settings = unserialize($record->settings);
-  $record->settings['layout_disable_css'] = $disable_css;
-
-  drupal_write_record('ds_layout_settings', $record, array('id'));
+  $layout = ds_get_layout_settings($values['ds_entity_type'], $values['ds_bundle'], $values['ds_view_mode']);
+  $layout->settings['layout_disable_css'] = $disable_css;
+  ds_save_layout_settings($layout);
 
   unset($_GET['destination']);
   global $base_url;
@@ -2072,7 +2019,8 @@ function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, &$form_s
   drupal_alter('ds_fields_ui', $fields, $context);
 
   // Get field settings.
-  $field_settings = ds_get_field_settings($entity_type, $bundle, $view_mode, FALSE);
+  $layout = ds_get_layout_settings($entity_type, $bundle, $view_mode);
+  $field_settings = $layout->fields;
   $form['#field_settings'] = $field_settings;
 
   $table = &$form['fields'];
@@ -2494,7 +2442,7 @@ function ds_field_row_form_format_summary_construct(&$table, $key) {
   $table[$key]['settings_edit'] = $base_button + array(
     '#type' => 'image_button',
     '#name' => $key . '_formatter_settings_edit',
-    '#src' => 'misc/configure.png',
+    '#src' => 'core/misc/configure.png',
     '#attributes' => array('class' => array('field-formatter-settings-edit'), 'alt' => t('Edit')),
     '#op' => 'edit',
     // Do not check errors for the 'Edit' button.

@@ -57,38 +57,38 @@ function _ds_menu() {
     'type' => MENU_VISIBLE_IN_BREADCRUMB,
   );
 
-  // Revert layout.
-  $items['admin/structure/ds/revert-layout'] = array(
-    'title' => 'Revert layout',
-    'description' => 'Revert layout and field settings.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('ds_revert_layout_field_settings_form'),
-    'file' => 'includes/ds.field_ui.inc',
-    'access arguments' => array('admin_display_suite'),
-    'type' => MENU_VISIBLE_IN_BREADCRUMB,
-  );
-
-  // Disable layout.
-  $items['admin/structure/ds/disable'] = array(
-    'title' => 'Disable layout',
-    'description' => 'Disable layout and field settings',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('ds_disable_layout_field_settings_form'),
-    'file' => 'includes/ds.field_ui.inc',
-    'access arguments' => array('admin_display_suite'),
-    'type' => MENU_VISIBLE_IN_BREADCRUMB,
-  );
-
-  // Enable layout.
-  $items['admin/structure/ds/enable'] = array(
-    'title' => 'Enable layout',
-    'description' => 'Enable layout and field settings',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('ds_enable_layout_field_settings_form'),
-    'file' => 'includes/ds.field_ui.inc',
-    'access arguments' => array('admin_display_suite'),
-    'type' => MENU_VISIBLE_IN_BREADCRUMB,
-  );
+//  // Revert layout.
+//  $items['admin/structure/ds/revert-layout'] = array(
+//    'title' => 'Revert layout',
+//    'description' => 'Revert layout and field settings.',
+//    'page callback' => 'drupal_get_form',
+//    'page arguments' => array('ds_revert_layout_field_settings_form'),
+//    'file' => 'includes/ds.field_ui.inc',
+//    'access arguments' => array('admin_display_suite'),
+//    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+//  );
+//
+//  // Disable layout.
+//  $items['admin/structure/ds/disable'] = array(
+//    'title' => 'Disable layout',
+//    'description' => 'Disable layout and field settings',
+//    'page callback' => 'drupal_get_form',
+//    'page arguments' => array('ds_disable_layout_field_settings_form'),
+//    'file' => 'includes/ds.field_ui.inc',
+//    'access arguments' => array('admin_display_suite'),
+//    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+//  );
+//
+//  // Enable layout.
+//  $items['admin/structure/ds/enable'] = array(
+//    'title' => 'Enable layout',
+//    'description' => 'Enable layout and field settings',
+//    'page callback' => 'drupal_get_form',
+//    'page arguments' => array('ds_enable_layout_field_settings_form'),
+//    'file' => 'includes/ds.field_ui.inc',
+//    'access arguments' => array('admin_display_suite'),
+//    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+//  );
 
   // CTools content.
   $items['admin/structure/ds/fields/manage_ctools/content'] = array(
@@ -296,30 +296,9 @@ function _ds_theme_registry_alter(&$theme_registry) {
  */
 function _ds_entity_info_alter(&$entity_info) {
 
-  // Make sure ds_view_modes table exists.
-  if (!db_table_exists('ds_view_modes')) {
-    return;
-  }
-
-  ctools_include('export');
-
-  // Add custom view modes to entities.
-  $custom_view_modes = ctools_export_crud_load_all('ds_view_modes');
-  foreach ($custom_view_modes as $view_mode_key => $view_mode_value) {
-    $view_mode = array(
-      'label' => check_plain($view_mode_value->label),
-      'custom settings' => FALSE,
-    );
-    foreach ($view_mode_value->entities as $entity_type) {
-      if (isset($entity_info[$entity_type])) {
-        $entity_info[$entity_type]['view modes'][$view_mode_key] = $view_mode;
-      }
-    }
-  }
-
   // Add layout if applicable.
   $ds_layouts = ds_get_layout_info();
-  $ds_layout_settings = ctools_export_crud_load_all('ds_layout_settings');
+  $ds_layout_settings = ds_get_layout_settings();
   foreach ($ds_layout_settings as $row) {
 
     // Don't store any configuration if the layout is disabled.
@@ -504,44 +483,6 @@ function _ds_ds_layout_info() {
       'image' => TRUE,
     ),
   );
-
-  // Support for panels.
-  if (module_exists('panels')) {
-    ctools_include('plugins', 'panels');
-    $panel_layouts = panels_get_layouts();
-    foreach ($panel_layouts as $key => $layout) {
-      // The easy ones.
-      if (isset($layout['regions'])) {
-        $layouts['panels-' . $key] = array(
-          'label' => $layout['title'],
-          'path' => $layout['path'],
-          'module' => 'panels',
-          // We need the Panels plugin info array to correctly include the
-          // layout and its CSS files later on.
-          'panels' => $layout,
-          'flexible' => FALSE,
-          'regions' => $layout['regions'],
-        );
-        if (!empty($layout['css'])) {
-          $layouts['panels-' . $key]['css'] = TRUE;
-        }
-      }
-      // Flexible panel layouts, ignore the default flexible.
-      else {
-        if ($layout['name'] != 'flexible') {
-          $regions = panels_flexible_panels(array(), array(), $layout);
-          $layouts['panels-' . $key] = array(
-            'label' => $layout['title'],
-            'path' => $layout['path'],
-            'module' => 'panels',
-            'panels' => $layout,
-            'flexible' => TRUE,
-            'regions' => $regions,
-          );
-        }
-      }
-    }
-  }
 
   // Get layouts defined in the active theme and base theme (if applicable).
   $themes = list_themes();

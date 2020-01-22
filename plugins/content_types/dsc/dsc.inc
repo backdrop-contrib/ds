@@ -20,7 +20,7 @@ $plugin = array(
     'context' => array(),
   ),
   'description' => t('Add custom content with the possibility to use the entity object when using the Display Suite format.'),
-  'js' => array('misc/textarea.js', 'misc/collapse.js'),
+  'js' => array('core/misc/textarea.js', 'core/misc/collapse.js'),
   'all contexts' => TRUE,
 );
 

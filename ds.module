@@ -139,7 +139,7 @@ function ds_entity_info_alter(&$entity_info) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function ds_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+function ds_form_field_ui_display_form_alter(&$form, &$form_state) {
   form_load_include($form_state, 'inc', 'ds', 'includes/ds.field_ui');
   // Also load admin on behalf of DS extras when enabled.
   if (module_exists('ds_extras')) {
@@ -309,7 +309,7 @@ function ds_get_fields($entity_type, $cache = TRUE) {
   // Get fields from cache.
   if (!$loaded) {
     $loaded = TRUE;
-    if ($cache && $cached_fields = cache_get('ds_fields:' . $language->language)) {
+    if ($cache && $cached_fields = cache_get('ds_fields:' . $language->langcode)) {
       $fields_cached = $static_fields = $cached_fields->data;
     }
   }
@@ -344,7 +344,7 @@ function ds_get_fields($entity_type, $cache = TRUE) {
 
       // Cache the fields.
       if ($cache) {
-        cache_set('ds_fields:' . $language->language, $fields_cached, 'cache');
+        cache_set('ds_fields:' . $language->langcode, $fields_cached, 'cache');
       }
     }
     else {
@@ -356,46 +356,6 @@ function ds_get_fields($entity_type, $cache = TRUE) {
   }
 
   return isset($static_fields[$entity_type]) ? $static_fields[$entity_type] : array();
-}
-
-/**
- * Get the field settings.
- *
- * @param $entity_type
- *   The name of the entity.
- * @param $bundle
- *   The name of bundle (ie, page or story for node types, profile for users)
- * @param $view_mode
- *   The name of view mode.
- */
-function ds_get_field_settings($entity_type, $bundle, $view_mode, $default = TRUE) {
-  static $field_settings = NULL;
-
-  if (!isset($field_settings)) {
-    if ($cache = cache_get('ds_field_settings')) {
-      $field_settings = $cache->data;
-    }
-    else {
-      ctools_include('export');
-      $ds_field_settings = ctools_export_crud_load_all('ds_field_settings');
-      foreach ($ds_field_settings as $layout => $layout_settings) {
-        // Do not store configuration when the field settings is disabled.
-        if (!empty($layout_settings->disabled)) {
-          continue;
-        }
-        // Do not store configuration if settings key is not set.
-        if (!isset($layout_settings->settings)) {
-          continue;
-        }
-        foreach ($layout_settings->settings as $field => $settings) {
-          $field_settings[$layout_settings->entity_type][$layout_settings->bundle][$layout_settings->view_mode][$field] = $settings;
-        }
-      }
-      cache_set('ds_field_settings', $field_settings, 'cache');
-    }
-  }
-
-  return (isset($field_settings[$entity_type][$bundle][$view_mode])) ? $field_settings[$entity_type][$bundle][$view_mode] : (isset($field_settings[$entity_type][$bundle]['default']) && $default ? $field_settings[$entity_type][$bundle]['default'] : array());
 }
 
 /**
@@ -516,7 +476,8 @@ function ds_field_attach_view_alter(&$build, $context) {
 
   // Add Display Suite display fields.
   $fields = ds_get_fields($entity_type);
-  $field_values = ds_get_field_settings($entity_type, $bundle, $layout['view_mode']);
+  $layout_settings = ds_get_layout_settings($entity_type, $bundle, $layout['view_mode']);
+  $field_values = $layout_settings->fields;
 
   foreach ($field_values as $key => $field) {
 
@@ -739,7 +700,7 @@ function ds_entity_variables(&$vars) {
         $vars['classes_array'] = array_unique(array_merge($vars['classes_array'], $vars['attributes_array']['class']));
         unset($vars['attributes_array']['class']);
       }
-      $vars['layout_attributes'] .= ' ' . drupal_attributes($vars['attributes_array']);
+      $vars['layout_attributes'] .= ' ' . drupal_attributes($vars['attributes']);
     }
 
     // Token support for layout classes.
@@ -852,8 +813,8 @@ function ds_render_ctools_field($field) {
     // 3) embed a view with the 2 taxonomies as fields.
     if (isset($field['formatter_settings']['load_terms']) && $field['formatter_settings']['load_terms']) {
       static $terms_loaded = array();
-      if (isset($field['entity']->language)) {
-        $language = $field['entity']->language;
+      if (isset($field['entity']->langcode)) {
+        $language = $field['entity']->langcode;
       }
       else {
         $language = LANGUAGE_NONE;
@@ -1049,7 +1010,7 @@ function ds_render_field($field) {
 function ds_edit_support($field_name, $output, $field) {
 
   if (module_exists('edit')) {
-    $edit_id = "node/" . $field['entity']->nid . "/" . $field_name . "/" . $field['entity']->language . "/" . $field['view_mode'];
+    $edit_id = "node/" . $field['entity']->nid . "/" . $field_name . "/" . $field['entity']->langcode . "/" . $field['view_mode'];
     $output = edit_wrap_pseudofield($output, $edit_id);
   }
 
@@ -1234,8 +1195,8 @@ function ds_field_formatter_view($entity_type, $entity, $field, $instance, $lang
           continue;
         }
         $settings = $display['settings'];
-        if ($settings['use_content_language'] && !empty($GLOBALS['language_content']->language)) {
-          $langcode = $GLOBALS['language_content']->language;
+        if ($settings['use_content_language'] && !empty($GLOBALS['language_content']->langcode)) {
+          $langcode = $GLOBALS['language_content']->langcode;
         }
         if (!empty($term)) {
           $build = taxonomy_term_view($term, $view_mode, $langcode);
@@ -1269,7 +1230,7 @@ function ds_field_formatter_view($entity_type, $entity, $field, $instance, $lang
           continue;
         }
         if ($display['type'] == 'ds_taxonomy_separator_localized' && function_exists('i18n_taxonomy_term_name')) {
-          $term->name = i18n_taxonomy_term_name($term, $language->language);
+          $term->name = i18n_taxonomy_term_name($term, $language->langcode);
         }
         $item_display = check_plain($term->name);
         if ($linked) {
@@ -1321,4 +1282,78 @@ function ds_contextual_links_view_alter(&$element, $items) {
       'query' => drupal_get_destination(),
     );
   }
+}
+
+function ds_save_layout_settings($layout) {
+  if (!empty($layout->entity_type) && !empty($layout->bundle) && !empty($layout->view_mode)) {
+    $config = config('ds.layout.' . $layout->entity_type . '.' . $layout->bundle . '.' . $layout->view_mode);
+    if ($config->isNew()) {
+      // We are saving new settings for a layout.
+      $config->set('entity_type', $layout->entity_type);
+      $config->set('bundle', $layout->bundle);
+      $config->set('view_mode', $layout->view_mode);
+      $config->set('layout', $layout->layout);
+      $config->set('settings', $layout->settings);
+      $config->save();
+    }
+    else {
+      if (isset($layout->layout)) {
+        $config->set('layout', $layout->layout);
+      }
+      if (isset($layout->settings)) {
+        $config->set('settings', $layout->settings);
+      }
+      if (isset($layout->fields)) {
+        $config->set('fields', $layout->fields);
+      }
+      $config->save();
+    }
+  }
+}
+
+function ds_get_layout_settings($entity_type = NULL, $bundle = NULL, $view_mode = NULL) {
+  if (!empty($entity_type) && !empty($bundle) && !empty($view_mode)) {
+    $config = config('ds.layout.' . $entity_type . '.' . $bundle . '.' . $view_mode);
+    $layout = new stdClass();
+    if (!$config->isNew()) {
+      $layout->entity_type = $config->get('entity_type');
+      $layout->bundle = $config->get('bundle');
+      $layout->view_mode = $config->get('view_mode');
+      $layout->layout = $config->get('layout');
+      $layout->settings = $config->get('settings');
+      $layout->fields = $config->get('fields');
+    }
+    return $layout;
+  }
+
+  $entity_info = entity_get_info();
+  $data = array();
+
+  foreach ($entity_info as $entity_key => $entity) {
+    if (!empty($entity_type) && $entity_key !== $entity_type) {
+      continue;
+    }
+    foreach (array_keys($entity['bundles']) as $bundle_key) {
+      if (!empty($bundle) && $bundle !== $bundle_key) {
+        continue;
+      }
+      foreach (array_merge(array('default'), array_keys($entity['view modes'])) as $view_mode_key) {
+        if (!empty($view_mode) && $view_mode !== $view_mode_key) {
+          continue;
+        }
+        $config = config('ds.layout.' . $entity_key . '.' . $bundle_key . '.' . $view_mode_key);
+        if (!$config->isNew()) {
+          $layout = new stdClass();
+          $layout->entity_type = $config->get('entity_type');
+          $layout->bundle = $config->get('bundle');
+          $layout->view_mode = $config->get('view_mode');
+          $layout->layout = $config->get('layout');
+          $layout->settings = $config->get('settings');
+          $layout->fields = $config->get('fields');
+          $data[$entity_key . '.' . $bundle_key . '.' . $view_mode_key] = $layout;
+        }
+      }
+    }
+  }
+  return $data;
 }
