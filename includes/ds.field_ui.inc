@@ -2476,18 +2476,18 @@ function _ds_field_ui_custom_fields($entity_type, $bundle, $view_mode, &$form, $
   );
 
   // Include the CTools tools that we need.
-  ctools_include('ajax');
-  ctools_include('modal');
+//  ctools_include('ajax');
+//  ctools_include('modal');
 
   // Add CTools' javascript to the page.
-  ctools_modal_add_js();
+//  ctools_modal_add_js();
 
   $field_types = array(
     'custom_field' => t('Add a code field'),
     'manage_ctools' => t('Add a dynamic field'),
+    'manage_block' => t('Add a block field'),
+    'manage_preprocess' => t('Add a preprocess field'),
   );
-  $field_types['manage_block'] = t('Add a block field');
-  $field_types['manage_preprocess'] = t('Add a preprocess field');
 
   foreach ($field_types as $field_key => $field_title) {
 

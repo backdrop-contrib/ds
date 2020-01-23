@@ -10,10 +10,6 @@
  */
 function ds_ui_permission() {
   return array(
-    'admin_view_modes' => array(
-      'title' => t('Administer view modes'),
-      'description' => t('Manage custom view modes for every entity.')
-    ),
     'admin_fields' => array(
       'title' => t('Administer fields'),
       'description' => t('Manage fields for every entity.')
@@ -40,44 +36,6 @@ function ds_ui_menu() {
     'file' => 'includes/ds.classes.inc',
     'access arguments' => array('admin_classes'),
     'type' => MENU_LOCAL_TASK,
-  );
-
-  // View modes.
-  $items['admin/structure/ds/view_modes'] = array(
-    'title' => 'View modes',
-    'description' => 'Manage view modes for all content.',
-    'page callback' => 'ds_view_modes_list',
-    'file' => 'includes/ds.view_modes.inc',
-    'access arguments' => array('admin_view_modes'),
-    'weight' => -9,
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['admin/structure/ds/view_modes/manage'] = array(
-    'title' => 'Add a view mode',
-    'description' => 'Manage a view mode',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('ds_edit_view_mode_form'),
-    'file' => 'includes/ds.view_modes.inc',
-    'access arguments' => array('admin_view_modes'),
-    'type' => MENU_LOCAL_ACTION,
-  );
-  $items['admin/structure/ds/view_modes/delete'] = array(
-    'title' => 'Delete a view mode',
-    'description' => 'Delete a custom view mode.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('ds_delete_view_mode_confirm'),
-    'file' => 'includes/ds.view_modes.inc',
-    'access arguments' => array('admin_view_modes'),
-    'type' => MENU_VISIBLE_IN_BREADCRUMB,
-  );
-  $items['admin/structure/ds/view_modes/revert'] = array(
-    'title' => 'Revert a view mode',
-    'description' => 'Revert a view mode.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('ds_revert_view_mode_confirm'),
-    'file' => 'includes/ds.view_modes.inc',
-    'access arguments' => array('admin_view_modes'),
-    'type' => MENU_VISIBLE_IN_BREADCRUMB,
   );
 
   // Fields.

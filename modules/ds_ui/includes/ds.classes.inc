@@ -9,12 +9,13 @@
  * Menu callback, show CSS classes form.
  */
 function ds_classes_form($form, $form_state) {
-  $form = array();
+  $config = config('ds.settings');
+  $form['#config'] = 'ds.settings';
 
-  $form['ds_classes_regions'] = array(
+  $form['classes_regions'] = array(
     '#type' => 'textarea',
     '#title' => t('CSS classes for regions'),
-    '#default_value' => variable_get('ds_classes_regions', ''),
+    '#default_value' => $config->get('classes_regions'),
     '#description' => t('Configure CSS classes which you can add to regions on the "manage display" screens. Add multiple CSS classes line by line.<br />If you want to have a friendly name, separate class and friendly name by |, but this is not required. eg:<br /><em>class_name_1<br />class_name_2|Friendly name<br />class_name_3</em>')
   );
 
@@ -34,10 +35,10 @@ function ds_classes_form($form, $form_state) {
 
   // Only show field classes if DS extras module is enabled
   if (module_exists('ds_extras')) {
-    $form['ds_classes_fields'] = array(
+    $form['classes_fields'] = array(
       '#type' => 'textarea',
       '#title' => t('CSS classes for fields'),
-      '#default_value' => variable_get('ds_classes_fields', ''),
+      '#default_value' => $config->get('classes_fields'),
       '#description' => t('Configure CSS classes which you can add to fields on the "manage display" screens. Add multiple CSS classes line by line.<br />If you want to have a friendly name, separate class and friendly name by |, but this is not required. eg:<br /><em>class_name_1<br />class_name_2|Friendly name<br />class_name_3</em>')
     );
   }
