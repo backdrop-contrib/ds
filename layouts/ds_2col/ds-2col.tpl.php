@@ -21,6 +21,6 @@
 
 </<?php print $layout_wrapper ?>>
 
-<?php if (!empty($drupal_render_children)): ?>
-  <?php print $drupal_render_children ?>
+<?php if (!empty($backdrop_render_children)): ?>
+  <?php print $backdrop_render_children ?>
 <?php endif; ?>

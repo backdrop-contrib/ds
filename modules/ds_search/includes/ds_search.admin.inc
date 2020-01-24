@@ -18,7 +18,7 @@ function ds_search_settings($form, $form_state) {
   $engine_options = array();
   foreach (module_implements('search_info') as $module) {
     if ($module != 'ds_search' && $module != 'user') {
-      $engine_options[$module] = drupal_ucfirst(str_replace('_', ' ', $module));
+      $engine_options[$module] = backdrop_ucfirst(str_replace('_', ' ', $module));
     }
   }
 
@@ -150,7 +150,7 @@ function ds_search_settings($form, $form_state) {
       '#title' => t('Group label for @title', array('@title' => $label)),
       '#title_display' => 'invisible',
       '#description' => t('Group label. The label will be translatable. Leave empty for no label.'),
-      '#default_value' => isset($ds_search_group_by_type_settings[$name]) ? $ds_search_group_by_type_settings[$name]['label'] : t('Results for @type', array('@type' => drupal_strtolower($node_types[$name]))),
+      '#default_value' => isset($ds_search_group_by_type_settings[$name]) ? $ds_search_group_by_type_settings[$name]['label'] : t('Results for @type', array('@type' => backdrop_strtolower($node_types[$name]))),
       '#parents' => array('ds_search_group_by_type_settings', $name, 'label'),
     );
 
@@ -343,20 +343,20 @@ function theme_ds_search_group_by_type_settings($variables) {
     $element[$name]['weight']['#attributes']['class'][] = 'type-order-weight';
     $rows[] = array(
       'data' => array(
-        drupal_render($element[$name]['name']),
-        drupal_render($element[$name]['status']),
-        drupal_render($element[$name]['label']),
-        drupal_render($element[$name]['wrapper']),
-        drupal_render($element[$name]['weight']),
+        backdrop_render($element[$name]['name']),
+        backdrop_render($element[$name]['status']),
+        backdrop_render($element[$name]['label']),
+        backdrop_render($element[$name]['wrapper']),
+        backdrop_render($element[$name]['weight']),
       ),
       'class' => array('draggable'),
     );
   }
 
   $header = array(t('Type'), t('Status'), t('Group label'), t('Wrapper'), t('Weight'));
-  $output = drupal_render_children($element);
+  $output = backdrop_render_children($element);
   $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'group-by-order')));
-  drupal_add_tabledrag('group-by-order', 'order', 'sibling', 'type-order-weight', NULL, NULL, TRUE);
+  backdrop_add_tabledrag('group-by-order', 'order', 'sibling', 'type-order-weight', NULL, NULL, TRUE);
 
   return $output;
 }

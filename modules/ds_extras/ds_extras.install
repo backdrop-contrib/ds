@@ -130,6 +130,6 @@ function ds_extras_update_7200() {
 
       $record->settings[$field] = $settings;
     }
-    drupal_write_record('ds_field_settings', $record);
+    backdrop_write_record('ds_field_settings', $record);
   }
 }

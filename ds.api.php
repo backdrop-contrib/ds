@@ -396,7 +396,7 @@ function hook_ds_field_settings_alter(&$field_settings, $form, $form_state) {
  *   A collection of layouts.
  */
 function hook_ds_layout_info() {
-  $path = drupal_get_path('module', 'foo');
+  $path = backdrop_get_path('module', 'foo');
 
   $layouts = array(
     'foo_1col' => array(
@@ -544,7 +544,7 @@ function ds_views_row_ENTITY_NAME($entity, $view_mode) {
   $nid = $vars['row']->{$vars['field_alias']};
   $node = node_load($nid);
   $element = node_view($node, $view_mode);
-  return drupal_render($element);
+  return backdrop_render($element);
 }
 
 /**
@@ -578,7 +578,7 @@ function hook_ds_views_row_render_entity_alter(&$content, &$context) {
   if ($context['view_mode'] == 'my_mode') {
     // Modify the view, or the content render array in the context of a view.
     $view = &$context['view'];
-    $element = &drupal_array_get_nested_value($content, array('field_example', 0));
+    $element = &backdrop_array_get_nested_value($content, array('field_example', 0));
   }
 }
 

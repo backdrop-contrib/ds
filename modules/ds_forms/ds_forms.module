@@ -57,11 +57,11 @@ function ds_forms_form_field_ui_field_overview_form_alter(&$form, &$form_state) 
           'progress' => 'none',
         ),
       );
-      $form['#attached']['css'][] = drupal_get_path('module', 'ds_forms') . '/css/ds_forms.admin.css';
+      $form['#attached']['css'][] = backdrop_get_path('module', 'ds_forms') . '/css/ds_forms.admin.css';
     }
 
     // Attach js.
-    $form['#attached']['js'][] = drupal_get_path('module', 'ds_forms') . '/js/ds_forms.admin.js';
+    $form['#attached']['js'][] = backdrop_get_path('module', 'ds_forms') . '/js/ds_forms.admin.js';
 
     // Load Display Suite.
     form_load_include($form_state, 'inc', 'ds', 'includes/ds.field_ui');
@@ -147,7 +147,7 @@ function ds_forms_preprocess_ds_forms_custom_form(&$vars) {
 
     // Add path to css file.
     if (isset($layout['css'])) {
-      drupal_add_css($layout['path'] . '/' . $layout['layout'] . '.css');
+      backdrop_add_css($layout['path'] . '/' . $layout['layout'] . '.css');
     }
 
     // Add the hidden region.
@@ -197,7 +197,7 @@ function ds_forms_preprocess_ds_forms_custom_form(&$vars) {
     $vars['layout_wrapper'] = isset($layout['settings']['layout_wrapper']) ? $layout['settings']['layout_wrapper'] : 'div';
 
     // Add the rest of the form elements
-    $vars['drupal_render_children'] = drupal_render_children($vars['form']);
+    $vars['backdrop_render_children'] = backdrop_render_children($vars['form']);
   }
 }
 
@@ -220,7 +220,7 @@ function ds_forms_render_region(&$content, $region, $layout) {
         $content[$field]['#access'] = FALSE;
       }
       else {
-        $output .= drupal_render($content[$field]);
+        $output .= backdrop_render($content[$field]);
       }
     }
   }

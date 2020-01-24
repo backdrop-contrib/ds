@@ -38,7 +38,7 @@ function _ds_menu() {
   $items['admin/structure/ds/list/emergency'] = array(
     'title' => 'Emergency',
     'description' => 'In case you have errors via Display Suite, visit this page.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('ds_emergency'),
     'access arguments' => array('admin_display_suite'),
     'file' => 'includes/ds.displays.inc',
@@ -50,7 +50,7 @@ function _ds_menu() {
   $items['admin/structure/ds/change-layout'] = array(
     'title' => 'Change layout',
     'description' => 'Act on layout change to move fields elsewhere',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('ds_field_ui_layout_change'),
     'access arguments' => array('admin_display_suite'),
     'file' => 'includes/ds.field_ui.inc',
@@ -61,7 +61,7 @@ function _ds_menu() {
 //  $items['admin/structure/ds/revert-layout'] = array(
 //    'title' => 'Revert layout',
 //    'description' => 'Revert layout and field settings.',
-//    'page callback' => 'drupal_get_form',
+//    'page callback' => 'backdrop_get_form',
 //    'page arguments' => array('ds_revert_layout_field_settings_form'),
 //    'file' => 'includes/ds.field_ui.inc',
 //    'access arguments' => array('admin_display_suite'),
@@ -72,7 +72,7 @@ function _ds_menu() {
 //  $items['admin/structure/ds/disable'] = array(
 //    'title' => 'Disable layout',
 //    'description' => 'Disable layout and field settings',
-//    'page callback' => 'drupal_get_form',
+//    'page callback' => 'backdrop_get_form',
 //    'page arguments' => array('ds_disable_layout_field_settings_form'),
 //    'file' => 'includes/ds.field_ui.inc',
 //    'access arguments' => array('admin_display_suite'),
@@ -83,7 +83,7 @@ function _ds_menu() {
 //  $items['admin/structure/ds/enable'] = array(
 //    'title' => 'Enable layout',
 //    'description' => 'Enable layout and field settings',
-//    'page callback' => 'drupal_get_form',
+//    'page callback' => 'backdrop_get_form',
 //    'page arguments' => array('ds_enable_layout_field_settings_form'),
 //    'file' => 'includes/ds.field_ui.inc',
 //    'access arguments' => array('admin_display_suite'),
@@ -339,7 +339,7 @@ function _ds_entity_info_alter(&$entity_info) {
  * Implements hook_ds_layout_info().
  */
 function _ds_ds_layout_info() {
-  $path = drupal_get_path('module', 'ds');
+  $path = backdrop_get_path('module', 'ds');
   $layouts = array(
     'ds_1col' => array(
       'label' => t('One column'),
@@ -504,9 +504,9 @@ function _ds_ds_layout_info() {
 }
 
 function _ds_layouts_scan_theme($theme, &$layouts) {
-  $theme_layouts = file_scan_directory(drupal_get_path('theme', $theme) . '/ds_layouts', '/inc$/');
+  $theme_layouts = file_scan_directory(backdrop_get_path('theme', $theme) . '/ds_layouts', '/inc$/');
   foreach ($theme_layouts as $file => $values) {
-    include_once(DRUPAL_ROOT . '/' . $file);
+    include_once(BACKDROP_ROOT . '/' . $file);
     $function = 'ds_' . $values->name;
     $layouts[$values->name] = $function();
     $layouts[$values->name]['path'] = str_replace('/' . $values->filename, '', $file);
@@ -521,11 +521,11 @@ function _ds_menu_alter(&$items) {
   if (module_exists('revisioning')) {
     $items['node/%node/revisions/%vid/view']['page callback'] = 'ds_revision_node_show';
     $items['node/%node/revisions/%vid/view']['file'] = 'includes/ds.revision.inc';
-    $items['node/%node/revisions/%vid/view']['file path'] = drupal_get_path('module', 'ds');
+    $items['node/%node/revisions/%vid/view']['file path'] = backdrop_get_path('module', 'ds');
   }
   else {
     $items['node/%node/revisions/%/view']['page callback'] = 'ds_revision_node_show';
     $items['node/%node/revisions/%/view']['file'] = 'includes/ds.revision.inc';
-    $items['node/%node/revisions/%/view']['file path'] = drupal_get_path('module', 'ds');
+    $items['node/%node/revisions/%/view']['file path'] = backdrop_get_path('module', 'ds');
   }
 }

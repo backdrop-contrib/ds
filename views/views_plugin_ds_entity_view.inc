@@ -224,7 +224,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     if (!empty($sorts)) {
       $sort_options = array();
       foreach ($sorts as $key => $sort) {
-        $sort_name = drupal_ucfirst($sort['field']);
+        $sort_name = backdrop_ucfirst($sort['field']);
         $sort_options[$sort['table'] . '|' . $sort['field']] = $sort_name;
       }
 
@@ -417,7 +417,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
       'view_name' => $this->view->name,
       'display' => $this->view->current_display
     );
-    drupal_alter('ds_views_view_mode', $view_mode, $context);
+    backdrop_alter('ds_views_view_mode', $view_mode, $context);
     // Call the row render function.
     $content = $this->ds_views_row_render_entity($view_mode, $row, $load_comments);
 
@@ -434,8 +434,8 @@ class views_plugin_ds_entity_view extends views_plugin_row {
 
       // Note, the keys in the $row object are cut of at 60 chars.
       // see views_plugin_query_default.inc.
-      if (drupal_strlen($group_field) > 60) {
-        $group_field = drupal_substr($group_field, 0, 60);
+      if (backdrop_strlen($group_field) > 60) {
+        $group_field = backdrop_substr($group_field, 0, 60);
       }
 
       $raw_group_value = isset($row->{$group_field}) ? $row->{$group_field} : '';
@@ -507,8 +507,8 @@ class views_plugin_ds_entity_view extends views_plugin_row {
       'view_mode' => $view_mode,
       'load_comments' => $load_comments,
     );
-    drupal_alter('ds_views_row_render_entity', $content, $context);
-    return drupal_render($content);
+    backdrop_alter('ds_views_row_render_entity', $content, $context);
+    return backdrop_render($content);
   }
 }
 

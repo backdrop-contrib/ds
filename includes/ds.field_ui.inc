@@ -43,10 +43,10 @@ function ds_field_ui_fields_layouts(&$form, &$form_state) {
   }
 
   // Attach js.
-  $form['#attached']['js'][] = drupal_get_path('module', 'ds') . '/js/ds.admin.js';
+  $form['#attached']['js'][] = backdrop_get_path('module', 'ds') . '/js/ds.admin.js';
 
   // Attach css.
-  $form['#attached']['css'][] = drupal_get_path('module', 'ds') . '/css/ds.admin.css';
+  $form['#attached']['css'][] = backdrop_get_path('module', 'ds') . '/css/ds.admin.css';
 
   // Add process function to add the regions.
   $form['#process'][] = 'ds_field_ui_regions';
@@ -58,7 +58,7 @@ function ds_field_ui_fields_layouts(&$form, &$form_state) {
   );
   $form['ds_destination'] = array(
     '#type' => 'hidden',
-    '#value' => drupal_get_destination(),
+    '#value' => backdrop_get_destination(),
   );
   $form['ds_entity_type'] = array(
     '#type' => 'hidden',
@@ -124,14 +124,14 @@ function ds_disable_layout_field_settings_form($form, &$form_state, $id = '') {
     $form['#export_id'] = $id;
     return confirm_form($form,
       t('Are you sure you want to disable the layout and field settings for %layout?', array('%layout' => implode(', ', explode('.', $layout->id)))),
-      drupal_get_destination(),
+      backdrop_get_destination(),
       t('This action cannot be undone.'),
       t('Disable'),
       t('Cancel')
     );
   }
   else {
-    drupal_set_message(t('This operation is not possible.'));
+    backdrop_set_message(t('This operation is not possible.'));
   }
 }
 
@@ -153,9 +153,9 @@ function ds_disable_layout_field_settings_form_submit(&$form, &$form_state) {
   // Clear entity info cache.
   cache_clear_all('entity_info', 'cache', TRUE);
 
-  drupal_set_message(t('Layout has been disabled.'));
+  backdrop_set_message(t('Layout has been disabled.'));
 
-  $form_state['redirect'] = isset($_GET['destination']) ? $_GET['destination'] : drupal_get_destination();
+  $form_state['redirect'] = isset($_GET['destination']) ? $_GET['destination'] : backdrop_get_destination();
 }
 
 /**
@@ -174,14 +174,14 @@ function ds_enable_layout_field_settings_form($form, &$form_state, $id = '') {
     $form['#export_id'] = $id;
     return confirm_form($form,
       t('Are you sure you want to enable the layout and field settings for %layout?', array('%layout' => implode(', ', explode('.', $layout->id)))),
-      drupal_get_destination(),
+      backdrop_get_destination(),
       t('This action cannot be undone.'),
       t('Enable'),
       t('Cancel')
     );
   }
   else {
-    drupal_set_message(t('This operation is not possible.'));
+    backdrop_set_message(t('This operation is not possible.'));
   }
 }
 
@@ -202,9 +202,9 @@ function ds_enable_layout_field_settings_form_submit(&$form, &$form_state) {
   // Clear entity info cache.
   cache_clear_all('entity_info', 'cache', TRUE);
 
-  drupal_set_message(t('Layout has been enabled'));
+  backdrop_set_message(t('Layout has been enabled'));
 
-  $form_state['redirect'] = isset($_GET['destination']) ? $_GET['destination'] : drupal_get_destination();
+  $form_state['redirect'] = isset($_GET['destination']) ? $_GET['destination'] : backdrop_get_destination();
 }
 
 /**
@@ -222,14 +222,14 @@ function ds_revert_layout_field_settings_form($form, &$form_state, $id = '') {
     $form['#layout'] = $layout;
     return confirm_form($form,
       t('Are you sure you want to revert the layout for %layout?', array('%layout' => implode(', ', explode('.', $layout->id)))),
-      drupal_get_destination(),
+      backdrop_get_destination(),
       t('This action cannot be undone.'),
       t('Revert'),
       t('Cancel')
     );
   }
   else {
-    drupal_set_message(t('This operation is not possible.'));
+    backdrop_set_message(t('This operation is not possible.'));
   }
 }
 
@@ -254,9 +254,9 @@ function ds_revert_layout_field_settings_form_submit(&$form, &$form_state) {
   // Clear entity info cache.
   cache_clear_all('entity_info', 'cache', TRUE);
 
-  drupal_set_message(t('Layout has been reverted'));
+  backdrop_set_message(t('Layout has been reverted'));
 
-  $form_state['redirect'] = isset($_GET['destination']) ? $_GET['destination'] : drupal_get_destination();
+  $form_state['redirect'] = isset($_GET['destination']) ? $_GET['destination'] : backdrop_get_destination();
 }
 
 /**
@@ -334,7 +334,7 @@ function ds_field_ui_regions($form, $form_state) {
       'region_options' => &$region_options,
       'table_regions' => &$table['#regions'],
     );
-    drupal_alter('ds_layout_region', $context, $region_info);
+    backdrop_alter('ds_layout_region', $context, $region_info);
 
     $region_options['hidden'] = $view_mode != 'form' ? t('Disabled') : t('Hidden');
     $table['#regions']['hidden'] = array(
@@ -492,7 +492,7 @@ function ds_field_ui_layout_change($form, $form_state, $entity_type = '', $bundl
     $region_info = array(
       'region_options' => $regions,
     );
-    drupal_alter('ds_layout_region', $context, $region_info);
+    backdrop_alter('ds_layout_region', $context, $region_info);
     $regions = $region_info['region_options'];
     $form['#old_layout']['regions'] = $regions;
 
@@ -500,7 +500,7 @@ function ds_field_ui_layout_change($form, $form_state, $entity_type = '', $bundl
     $region_info = array(
       'region_options' => $new_layout['regions'],
     );
-    drupal_alter('ds_layout_region', $context, $region_info);
+    backdrop_alter('ds_layout_region', $context, $region_info);
     $new_layout['regions'] = $region_info['region_options'];
     $form['#new_layout']['regions'] = $new_layout['regions'];
 
@@ -529,7 +529,7 @@ function ds_field_ui_layout_change($form, $form_state, $entity_type = '', $bundl
       '#suffix' => '</div>',
     );
 
-    $fallback_image = drupal_get_path('module', 'ds') . '/images/preview.png';
+    $fallback_image = backdrop_get_path('module', 'ds') . '/images/preview.png';
     $old_image = (isset($old_layout['image']) &&  !empty($old_layout['image'])) ? $old_layout['path'] . '/' . $old_layout['layout'] . '.png' : $fallback_image;
     if (isset($old_layout['panels']) && !empty($old_layout['panels']['icon'])) {
       $old_image = $old_layout['panels']['path'] . '/' . $old_layout['panels']['icon'];
@@ -538,7 +538,7 @@ function ds_field_ui_layout_change($form, $form_state, $entity_type = '', $bundl
     if (isset($new_layout['panels']) && !empty($new_layout['panels']['icon'])) {
       $new_image = $new_layout['panels']['path'] . '/' . $new_layout['panels']['icon'];
     }
-    $arrow = drupal_get_path('module', 'ds') . '/images/arrow.png';
+    $arrow = backdrop_get_path('module', 'ds') . '/images/arrow.png';
 
     $form['preview']['old_layout'] = array(
       '#markup' => '<div class="ds-layout-preview-image"><img src="' . base_path() . $old_image . '"/></div>',
@@ -549,7 +549,7 @@ function ds_field_ui_layout_change($form, $form_state, $entity_type = '', $bundl
     $form['preview']['new_layout'] = array(
       '#markup' => '<div class="ds-layout-preview-image"><img src="' . base_path() . $new_image . '"/></div>',
     );
-    $form['#attached']['css'][] = drupal_get_path('module', 'ds') . '/css/ds.admin.css';
+    $form['#attached']['css'][] = backdrop_get_path('module', 'ds') . '/css/ds.admin.css';
 
     // Submit button
     $form['actions'] = array('#type' => 'actions');
@@ -619,7 +619,7 @@ function ds_field_ui_layout_change_submit($form, &$form_state) {
   cache_clear_all('entity_info', 'cache', TRUE);
 
   // Show message.
-  drupal_set_message(t('The layout change has been saved.'));
+  backdrop_set_message(t('The layout change has been saved.'));
 }
 
 /**
@@ -661,7 +661,7 @@ function ds_field_ui_layouts_save($form, &$form_state) {
     $record->settings = $record->settings;
 
     // Let other modules alter the layout settings.
-    drupal_alter('ds_layout_settings', $record, $form_state);
+    backdrop_alter('ds_layout_settings', $record, $form_state);
 
     // Move current visible fields into a default region, so
     // we keep their current settings.
@@ -774,7 +774,7 @@ function ds_field_ui_layouts_save($form, &$form_state) {
     }
 
     // Let other modules alter the layout settings.
-    drupal_alter('ds_layout_settings', $record, $form_state);
+    backdrop_alter('ds_layout_settings', $record, $form_state);
 
     ds_save_layout_settings($record);
 
@@ -840,7 +840,7 @@ function ds_field_ui_fields_save($form, &$form_state) {
   }
 
   // Allow other modules to modify the field settings before they get saved.
-  drupal_alter('ds_field_settings', $field_settings, $form, $form_state);
+  backdrop_alter('ds_field_settings', $field_settings, $form, $form_state);
 
   // Save the record.
   $record = new stdClass;
@@ -880,7 +880,7 @@ function ds_field_ui_layout_clone($form, &$form_state) {
     $record->fields = $layout->fields;
 
     // Let other modules alter the layout settings.
-    drupal_alter('ds_layout_settings', $record, $form_state);
+    backdrop_alter('ds_layout_settings', $record, $form_state);
 
     // Save layout record.
     ds_save_layout_settings($record);
@@ -892,11 +892,11 @@ function ds_field_ui_layout_clone($form, &$form_state) {
     cache_clear_all('entity_info', 'cache', TRUE);
 
     // Show message.
-    drupal_set_message(t('The layout has been cloned.'));
+    backdrop_set_message(t('The layout has been cloned.'));
 
   }
   else {
-    drupal_set_message(t('No layout was cloned.'));
+    backdrop_set_message(t('No layout was cloned.'));
   }
 }
 
@@ -975,7 +975,7 @@ function ds_field_formatter_settings_form($field, $instance, $view_mode, $form, 
       ' - ' => t('dash'),
       ' / ' => t('slash'),
     );
-    drupal_alter('ds_taxonomy_term_separators', $separators);
+    backdrop_alter('ds_taxonomy_term_separators', $separators);
     $element['taxonomy_term_separator'] = array(
       '#title' => t('Separator'),
       '#type' => 'select',
@@ -1014,7 +1014,7 @@ function ds_field_formatter_settings_summary($field, $instance, $view_mode) {
       ' - ' => t('dash'),
       ' / ' => t('slash'),
     );
-    drupal_alter('ds_taxonomy_term_separators', $separators);
+    backdrop_alter('ds_taxonomy_term_separators', $separators);
     $summary .= t('Separated by !sep', array('!sep' => $separators[$settings['taxonomy_term_separator']]));
     $summary .= $settings['taxonomy_term_link'] ? ', ' . t('linked') : ', ' . t('not linked');
   }
@@ -1078,7 +1078,7 @@ function ds_field_settings_summary($field, $form_state, $form, $view_mode) {
     'view_mode' => $view_mode,
     'ds' => TRUE,
   );
-  drupal_alter('field_formatter_settings_summary', $summary, $context);
+  backdrop_alter('field_formatter_settings_summary', $summary, $context);
 
   if (empty($summary)) {
     return NULL; // no summary return nothing
@@ -1146,7 +1146,7 @@ function ds_field_settings_form($field, &$form_state, $entity_form, $view_mode) 
     'form' => $entity_form,
     'form_state' => $form_state,
   );
-  drupal_alter('field_formatter_settings_form', $form, $context);
+  backdrop_alter('field_formatter_settings_form', $form, $context);
 
   return $form;
 }
@@ -1167,14 +1167,14 @@ function ds_ds_field_format_summary($field) {
 
     if ($key == 'ctools') {
       $conf = unserialize($value);
-      $summary .= t('Type: !type', array('!type' => check_plain(drupal_ucfirst(str_replace('_', ' ', $conf['subtype'])))));
+      $summary .= t('Type: !type', array('!type' => check_plain(backdrop_ucfirst(str_replace('_', ' ', $conf['subtype'])))));
     }
     elseif ($key == 'ft' || is_array($value)) {
       // Do nothing
     }
     elseif (!empty($value)) {
       $value = is_numeric($value) ? ($value ? t('Yes') : t('No')) : check_plain($value);
-      $summary .= ' ' . str_replace('_', ' ', drupal_ucfirst(check_plain($key))) . ': ' . check_plain($value) . '<br />';
+      $summary .= ' ' . str_replace('_', ' ', backdrop_ucfirst(check_plain($key))) . ': ' . check_plain($value) . '<br />';
     }
   }
 
@@ -1204,7 +1204,7 @@ function ds_ds_field_settings_form($field) {
       case 'textfield':
         $form[$key] = array(
           '#type' => 'textfield',
-          '#title' => str_replace('_', ' ', check_plain(drupal_ucfirst($key))),
+          '#title' => str_replace('_', ' ', check_plain(backdrop_ucfirst($key))),
           '#default_value' => isset($settings[$key]) ? $settings[$key] : '',
           '#size' => 40,
           '#description' => isset($value['description']) ? check_plain($value['description']) : '',
@@ -1214,7 +1214,7 @@ function ds_ds_field_settings_form($field) {
       case 'select':
         $form[$key] = array(
           '#type' => 'select',
-          '#title' => check_plain(drupal_ucfirst($key)),
+          '#title' => check_plain(backdrop_ucfirst($key)),
           '#default_value' => isset($settings[$key]) ? $settings[$key] : '',
           '#options' => $value['options'],
           '#description' => isset($value['description']) ? check_plain($value['description']) : '',
@@ -1224,7 +1224,7 @@ function ds_ds_field_settings_form($field) {
       case 'checkbox':
         $form[$key] = array(
           '#type' => 'checkbox',
-          '#title' => str_replace('_', ' ', check_plain(drupal_ucfirst($key))),
+          '#title' => str_replace('_', ' ', check_plain(backdrop_ucfirst($key))),
           '#default_value' => isset($settings[$key]) ? $settings[$key] : '',
           '#description' => isset($value['description']) ? check_plain($value['description']) : '',
         );
@@ -1283,7 +1283,7 @@ function ds_get_entity_context($entity_type) {
   $arguments = array(
     array(
       'keyword' => $entity_type,
-      'identifier' => drupal_ucfirst($entity_type) . ' being viewed',
+      'identifier' => backdrop_ucfirst($entity_type) . ' being viewed',
       'id' => 1,
       'name' => 'entity_id:' . $entity_type,
       'settings' => array(),
@@ -1478,7 +1478,7 @@ function ds_ctools_get_category($content_type) {
     $category = t('Uncategorized');
   }
 
-  return array(preg_replace('/[^a-z0-9]/', '-', drupal_strtolower($category)), $category);
+  return array(preg_replace('/[^a-z0-9]/', '-', backdrop_strtolower($category)), $category);
 }
 
 /**
@@ -1519,7 +1519,7 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
 
     // Create new layout option group.
     if (!empty($layout['module'])) {
-      $optgroup = drupal_ucfirst($layout['module']);
+      $optgroup = backdrop_ucfirst($layout['module']);
     }
 
     if (!isset($layout_options[$optgroup])) {
@@ -1558,10 +1558,10 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
   if (isset($layout->export_type)) {
     // Enabled/disable the layout.
     if (empty($layout->disabled)) {
-      $link = t('This layout is defined in code') . ': ' . l(t('disable layout.'), 'admin/structure/ds/disable/' . $form['#export_id'], array('query' => drupal_get_destination()));
+      $link = t('This layout is defined in code') . ': ' . l(t('disable layout.'), 'admin/structure/ds/disable/' . $form['#export_id'], array('query' => backdrop_get_destination()));
     }
     else {
-      $link = t('A layout is defined in code but has been disabled') . ': ' . l(t('enable layout.'), 'admin/structure/ds/enable/' . $form['#export_id'], array('query' => drupal_get_destination()));
+      $link = t('A layout is defined in code but has been disabled') . ': ' . l(t('enable layout.'), 'admin/structure/ds/enable/' . $form['#export_id'], array('query' => backdrop_get_destination()));
     }
     $form['additional_settings']['ds_layouts']['enable_disable'] = array(
       '#markup' => $link,
@@ -1571,7 +1571,7 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
     // Overridden in database.
     if ($layout->export_type == 3) {
       $form['additional_settings']['ds_layouts']['revert'] = array(
-        '#markup' => l(t('This layout is overridden. Click to revert to default settings.'), 'admin/structure/ds/revert-layout/' . $form['#export_id'], array('query' => drupal_get_destination())),
+        '#markup' => l(t('This layout is overridden. Click to revert to default settings.'), 'admin/structure/ds/revert-layout/' . $form['#export_id'], array('query' => backdrop_get_destination())),
         '#weight' => 1,
       );
     }
@@ -1717,15 +1717,15 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
         );
       }
       if ($classes_access) {
-        $form['additional_settings']['ds_classes']['info'] = array('#markup' => l(t('Manage region  and field CSS classes'), 'admin/structure/ds/classes', array('query' => drupal_get_destination())));
+        $form['additional_settings']['ds_classes']['info'] = array('#markup' => l(t('Manage region  and field CSS classes'), 'admin/structure/ds/classes', array('query' => backdrop_get_destination())));
       }
       elseif (user_access('admin_classes')) {
-        $form['additional_settings']['ds_classes']['info'] = array('#markup' => l(t('To manage region and field CSS classes, the Display Suite UI module should be enabled.'), 'admin/modules', array('query' => drupal_get_destination(), 'fragment' => 'edit-modules-display-suite')));
+        $form['additional_settings']['ds_classes']['info'] = array('#markup' => l(t('To manage region and field CSS classes, the Display Suite UI module should be enabled.'), 'admin/modules', array('query' => backdrop_get_destination(), 'fragment' => 'edit-modules-display-suite')));
       }
     }
     else {
       if ($classes_access) {
-        $form['additional_settings']['ds_classes']['info'] = array('#markup' => '<p>' . t('You have not defined any CSS classes which can be used on regions.') . '</p><p>' . l(t('Manage region and field CSS classes'), 'admin/structure/ds/classes', array('query' => drupal_get_destination())) . '</p>');
+        $form['additional_settings']['ds_classes']['info'] = array('#markup' => '<p>' . t('You have not defined any CSS classes which can be used on regions.') . '</p><p>' . l(t('Manage region and field CSS classes'), 'admin/structure/ds/classes', array('query' => backdrop_get_destination())) . '</p>');
       }
       else {
         $form['additional_settings']['ds_classes']['#access'] = FALSE;
@@ -1744,7 +1744,7 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
         if ($row->view_mode == 'form') {
           continue;
         }
-        $name = drupal_ucfirst(str_replace('_', ' ', $row->entity_type)) . ' > ' . drupal_ucfirst(str_replace('_', ' ', $row->bundle)) . ' > ' . drupal_ucfirst(str_replace('_', ' ', $row->view_mode));
+        $name = backdrop_ucfirst(str_replace('_', ' ', $row->entity_type)) . ' > ' . backdrop_ucfirst(str_replace('_', ' ', $row->bundle)) . ' > ' . backdrop_ucfirst(str_replace('_', ' ', $row->view_mode));
         if (!empty($row->disabled)) {
           $name .= ' ' . t('(disabled)');
         }
@@ -1871,7 +1871,7 @@ function _ds_field_ui_table_layouts_preview(&$form, &$form_state, $ds_layouts, $
     }
 
     if (isset($form_state['values']['additional_settings']['layout']) || (!empty($layout) && isset($layout->regions))) {
-      $fallback_image = drupal_get_path('module', 'ds') . '/images/preview.png';
+      $fallback_image = backdrop_get_path('module', 'ds') . '/images/preview.png';
       $current_layout = isset($form_state['values']['additional_settings']['layout']) && (!isset($layout->layout) || $form_state['values']['additional_settings']['layout'] != $layout->layout) ? t('Current layout (after save)') : t('Current layout');
       $image = (isset($chosen_layout['image']) && !empty($chosen_layout['image'])) ? $chosen_layout['path'] . '/' . $layout_string . '.png' : $fallback_image;
       if (isset($chosen_layout['panels']) && !empty($chosen_layout['panels']['icon'])) {
@@ -2016,7 +2016,7 @@ function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, &$form_s
   if ($entity_type != 'ds_views' && module_exists('ds_extras') && variable_get('ds_extras_vd', FALSE)) {
     module_load_include('inc', 'ds_extras', 'includes/ds_extras.vd');
   }
-  drupal_alter('ds_fields_ui', $fields, $context);
+  backdrop_alter('ds_fields_ui', $fields, $context);
 
   // Get field settings.
   $layout = ds_get_layout_settings($entity_type, $bundle, $view_mode);
@@ -2031,7 +2031,7 @@ function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, &$form_s
     'inline' => t('Inline'),
     'hidden' => t('<Hidden>'),
   );
-  drupal_alter('ds_label_options', $field_label_options);
+  backdrop_alter('ds_label_options', $field_label_options);
 
   // Regions for fields.
   $field_regions = array();
@@ -2281,7 +2281,7 @@ function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$f
         'form' => $form,
         'form_state' => $form_state,
       );
-      drupal_alter('field_formatter_settings_form', $settings_form, $context);
+      backdrop_alter('field_formatter_settings_form', $settings_form, $context);
 
       if ($settings_form) {
         $table[$key]['format']['#cell_attributes'] = array('colspan' => 3);
@@ -2327,7 +2327,7 @@ function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$f
         'instance' => $instance,
         'view_mode' => $view_mode,
       );
-      drupal_alter('field_formatter_settings_summary', $summary, $context);
+      backdrop_alter('field_formatter_settings_summary', $summary, $context);
 
       if (module_exists('ds_extras') && variable_get('ds_extras_field_template', FALSE)) {
         module_load_include('inc', 'ds_extras', 'includes/ds_extras.admin');
@@ -2562,7 +2562,7 @@ function _ds_classes($name = 'ds_classes_regions') {
       }
     }
     $name_clone = $name; // Prevent the name from being changed.
-    drupal_alter('ds_classes', $classes[$name], $name_clone);
+    backdrop_alter('ds_classes', $classes[$name], $name_clone);
   }
 
   return $classes[$name];

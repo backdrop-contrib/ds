@@ -49,7 +49,7 @@ function ds_extras_vd_overview() {
     'rows' => $rows,
   );
   $build['list'] = array('#markup' => theme('table', $variables));
-  $build['form'] = drupal_get_form('ds_extras_vd_bundle_form', $rows);
+  $build['form'] = backdrop_get_form('ds_extras_vd_bundle_form', $rows);
 
   return $build;
 }
@@ -78,7 +78,7 @@ function ds_extras_vd_bundle_form($form, $form_state, $rows) {
       }
 
       $key = $view_key . '-' . $display_key;
-      $name = drupal_ucfirst($view->name) . ': ' . $display->display_title;
+      $name = backdrop_ucfirst($view->name) . ': ' . $display->display_title;
       if (!isset($rows[$key])) {
         $options[$key] = $name . ' (Views template)';
       }
@@ -113,14 +113,14 @@ function ds_extras_vd_bundle_form_submit($form, &$form_state) {
   $record = new stdClass();
   $record->vd = $form_state['values']['vd'];
   $record->label = $form['vd']['#options'][$record->vd];
-  drupal_write_record('ds_vd', $record);
+  backdrop_write_record('ds_vd', $record);
 
   // Clear entity cache and field info fields cache.
   cache_clear_all('field_info_fields', 'cache_field');
   cache_clear_all('entity_info', 'cache', TRUE);
 
   // Message and redirect.
-  drupal_set_message(t('Bundle @label has been added.', array('@label' => $record->label)));
+  backdrop_set_message(t('Bundle @label has been added.', array('@label' => $record->label)));
   $form_state['redirect'] = 'admin/structure/ds/vd';
 }
 
@@ -136,7 +136,7 @@ function ds_extras_vd_manage($bundle = '', $action = '') {
   $entity_info = entity_get_info('ds_views');
 
   if (!empty($bundle) && isset($entity_info['bundles'][$bundle]) && $action == 'remove') {
-    return drupal_get_form('ds_extras_vd_bundle_remove', $bundle, $entity_info['bundles'][$bundle]['label']);
+    return backdrop_get_form('ds_extras_vd_bundle_remove', $bundle, $entity_info['bundles'][$bundle]['label']);
   }
 
   if (!empty($bundle) && isset($entity_info['bundles'][$bundle]) && $action == 'display') {
@@ -144,8 +144,8 @@ function ds_extras_vd_manage($bundle = '', $action = '') {
   }
 
   // Redirect to overview.
-  drupal_set_message(t('No view found to layout.'));
-  drupal_goto('admin/structure/ds/vd');
+  backdrop_set_message(t('No view found to layout.'));
+  backdrop_goto('admin/structure/ds/vd');
 }
 
 /**
@@ -158,7 +158,7 @@ function ds_extras_vd_field_ui($bundle) {
 
   global $conf;
 
-  // Use drupal_build_form instead of drupal_get_form.
+  // Use backdrop_build_form instead of backdrop_get_form.
   $form_state = array();
   $arguments = array('ds_views', $bundle, 'default');
   $form_state['build_info']['args'] = $arguments;
@@ -173,7 +173,7 @@ function ds_extras_vd_field_ui($bundle) {
   }
 
   // Build form.
-  $build = drupal_build_form('field_ui_display_overview_form', $form_state);
+  $build = backdrop_build_form('field_ui_display_overview_form', $form_state);
 
   // Deny access to view modes.
   $build['additional_settings']['modes']['#access'] = FALSE;
@@ -270,5 +270,5 @@ function ds_extras_vd_bundle_remove_submit($form, &$form_state) {
   cache_clear_all('field_info_fields', 'cache_field');
   cache_clear_all('entity_info', 'cache', TRUE);
 
-  drupal_set_message(t('Bundle @label has been removed.', array('@label' => $label)));
+  backdrop_set_message(t('Bundle @label has been removed.', array('@label' => $label)));
 }

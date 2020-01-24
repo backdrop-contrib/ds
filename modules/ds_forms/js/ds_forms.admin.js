@@ -4,10 +4,10 @@
 /**
  * Attach behaviors.
  */
-Drupal.behaviors.fieldUIFieldsFormsOverview = {
+Backdrop.behaviors.fieldUIFieldsFormsOverview = {
   attach: function (context, settings) {
     $('table#field-overview', context).once('field-field-overview', function() {
-      Drupal.fieldUIOverview.attach(this, settings.fieldUIRowsData, Drupal.fieldUIFieldOverview);
+      Backdrop.fieldUIOverview.attach(this, settings.fieldUIRowsData, Backdrop.fieldUIFieldOverview);
     });
   }
 };
@@ -15,9 +15,9 @@ Drupal.behaviors.fieldUIFieldsFormsOverview = {
 /**
  * Row handlers for the 'Manage fields' screen.
  */
-Drupal.fieldUIFieldOverview = Drupal.fieldUIFieldOverview || {};
+Backdrop.fieldUIFieldOverview = Backdrop.fieldUIFieldOverview || {};
 
-Drupal.fieldUIFieldOverview.ds = function (row, data) {
+Backdrop.fieldUIFieldOverview.ds = function (row, data) {
 
   this.row = row;
   this.name = data.name;
@@ -25,12 +25,12 @@ Drupal.fieldUIFieldOverview.ds = function (row, data) {
   this.tableDrag = data.tableDrag;
 
   this.$regionSelect = $('select.ds-field-region', row);
-  this.$regionSelect.change(Drupal.fieldUIOverview.onChange);
+  this.$regionSelect.change(Backdrop.fieldUIOverview.onChange);
 
   return this;
 };
 
-Drupal.fieldUIFieldOverview.ds.prototype = {
+Backdrop.fieldUIFieldOverview.ds.prototype = {
 
   /**
    * Returns the region corresponding to the current form values of the row.
@@ -44,19 +44,19 @@ Drupal.fieldUIFieldOverview.ds.prototype = {
    *
    * This function is called when the row is moved to a different region, as a
    * result of either :
-   * - a drag-and-drop action 
+   * - a drag-and-drop action
    * - user input in one of the form elements watched by the
-   *   Drupal.fieldUIOverview.onChange change listener.
+   *   Backdrop.fieldUIOverview.onChange change listener.
    *
    * @param region
    *   The name of the new region for the row.
    * @return
    *   A hash object indicating which rows should be AJAX-updated as a result
    *   of the change, in the format expected by
-   *   Drupal.fieldOverview.AJAXRefreshRows().
+   *   Backdrop.fieldOverview.AJAXRefreshRows().
    */
   regionChange: function (region, recurse) {
-	  	  	  
+
      // Replace dashes with underscores.
      region = region.replace(/-/g, '_');
 
@@ -66,10 +66,10 @@ Drupal.fieldUIFieldOverview.ds.prototype = {
      // Prepare rows to be refreshed in the form.
      var refreshRows = {};
      refreshRows[this.name] = this.$regionSelect.get(0);
-     
+
      // If a row is handled by field_group module, loop through the children.
-     if ($(this.row).hasClass('field-group') && $.isFunction(Drupal.fieldUIFieldOverview.group.prototype.regionChangeFields)) {
-       Drupal.fieldUIFieldOverview.group.prototype.regionChangeFields(region, this, refreshRows);
+     if ($(this.row).hasClass('field-group') && $.isFunction(Backdrop.fieldUIFieldOverview.group.prototype.regionChangeFields)) {
+       Backdrop.fieldUIFieldOverview.group.prototype.regionChangeFields(region, this, refreshRows);
      }
 
      return refreshRows;

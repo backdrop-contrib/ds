@@ -77,7 +77,7 @@ function template_preprocess_ds_row_fields(&$vars) {
 
     // Add css.
     if ($row_layout[$bundle]) {
-      drupal_add_css($row_layout[$bundle]['path'] . '/' . $row_layout[$bundle]['layout'] . '.css');
+      backdrop_add_css($row_layout[$bundle]['path'] . '/' . $row_layout[$bundle]['layout'] . '.css');
     }
   }
 

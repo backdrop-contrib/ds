@@ -146,7 +146,7 @@ function ds_ds_fields_info($entity_type) {
       $type = DS_FIELD_TYPE_FUNCTION;
       $styles = image_styles();
       foreach ($styles as $formatter) {
-        $picture_formatters['ds_picture_' . $formatter['name']] = drupal_ucfirst(str_replace('_', ' ', $formatter['name']));
+        $picture_formatters['ds_picture_' . $formatter['name']] = backdrop_ucfirst(str_replace('_', ' ', $formatter['name']));
       }
     }
     else {
@@ -255,7 +255,7 @@ function ds_ds_fields_info($entity_type) {
         $type = DS_FIELD_TYPE_FUNCTION;
         $styles = image_styles();
         foreach ($styles as $formatter) {
-          $picture_formatters['ds_picture_' . $formatter['name']] = drupal_ucfirst(str_replace('_', ' ', $formatter['name']));
+          $picture_formatters['ds_picture_' . $formatter['name']] = backdrop_ucfirst(str_replace('_', ' ', $formatter['name']));
         }
       }
       else {
@@ -317,7 +317,7 @@ function ds_ds_fields_info($entity_type) {
       $type = DS_FIELD_TYPE_FUNCTION;
       $styles = image_styles();
       foreach ($styles as $formatter) {
-        $picture_formatters['ds_picture_' . $formatter['name']] = drupal_ucfirst(str_replace('_', ' ', $formatter['name']));
+        $picture_formatters['ds_picture_' . $formatter['name']] = backdrop_ucfirst(str_replace('_', ' ', $formatter['name']));
       }
     }
     else {

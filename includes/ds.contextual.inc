@@ -47,5 +47,5 @@ function ds_contextual_page_tab($object, $entity_type) {
     $admin_path .= '/display/' . $view_mode;
   }
 
-  drupal_goto($admin_path, array('query' => array('destination' => $destination)));
+  backdrop_goto($admin_path, array('query' => array('destination' => $destination)));
 }

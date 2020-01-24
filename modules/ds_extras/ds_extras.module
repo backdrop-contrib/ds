@@ -14,7 +14,7 @@ function ds_extras_menu() {
   $items['admin/structure/ds/list/extras'] = array(
     'title' => 'Extras',
     'description' => 'Configure extra functionality for Display Suite.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('ds_extras_settings'),
     'access arguments' => array('admin_display_suite'),
     'file' => 'includes/ds_extras.admin.inc',
@@ -185,7 +185,7 @@ function ds_extras_field_attach_view_alter(&$build, $context) {
     return;
   }
 
-  $block_data = &drupal_static('ds_block_region');
+  $block_data = &backdrop_static('ds_block_region');
   $region_blocks = variable_get('ds_extras_region_blocks', array());
 
   if (empty($region_blocks)) {
@@ -242,24 +242,24 @@ function ds_extras_form_field_ui_field_edit_form_alter(&$form, &$form_state, $fo
 /**
  * Utility function to return the view mode for the current entity.
  *
- * The drupal_static is called in ds_extras_node_show to set
+ * The backdrop_static is called in ds_extras_node_show to set
  * the current view mode. Through this technique, the hide page
  * title functionality can also work across other view modes
  * if another one is chosen for the full page of the node.
  */
 function ds_extras_get_view_mode() {
-  return drupal_static('ds_extras_view_mode');
+  return backdrop_static('ds_extras_view_mode');
 }
 
 /**
  * Page title options for a full entity page view.
  */
 function ds_extras_process_page_title(&$variables) {
-  $page_title = drupal_static('ds_page_title');
+  $page_title = backdrop_static('ds_page_title');
   if (!empty($page_title)) {
     $variables['title'] = $page_title['title'];
     if (!empty($page_title['head_title'])) {
-      drupal_set_title($page_title['head_title']);
+      backdrop_set_title($page_title['head_title']);
     }
   }
 
@@ -330,7 +330,7 @@ function ds_extras_switch_view_mode_field($field) {
     if (!empty($switch)) {
       if (!$added) {
         $add = TRUE;
-        drupal_add_js(drupal_get_path('module', 'ds_extras') . '/js/ds_extras.js');
+        backdrop_add_js(backdrop_get_path('module', 'ds_extras') . '/js/ds_extras.js');
       }
       $output = '<div class="switch-view-mode-field">' . implode(' ', $switch) . '</div>';
     }
@@ -425,7 +425,7 @@ function ds_extras_form_node_form_alter(&$form, $form_state, $form_id) {
         '#suffix' => '</div>',
       );
 
-      $fallback_image = drupal_get_path('module', 'ds') . '/images/preview.png';
+      $fallback_image = backdrop_get_path('module', 'ds') . '/images/preview.png';
       $mode = isset($form_state['input']['ds_switch']) ? $form_state['input']['ds_switch'] : (isset($node->ds_switch) ? $node->ds_switch : 'default');
       if (isset($layouts[$mode])) {
         $chosen_layout = $layouts[$mode];
@@ -485,7 +485,7 @@ function ds_extras_block_info() {
   foreach ($region_blocks as $key => $block) {
     $blocks[$key] = array(
       'info' => $block['title'],
-      'cache' => DRUPAL_NO_CACHE,
+      'cache' => BACKDROP_NO_CACHE,
     );
   }
   return $blocks;
@@ -495,7 +495,7 @@ function ds_extras_block_info() {
  * Implements hook_block_view().
  */
 function ds_extras_block_view($delta = '') {
-  $data = drupal_static('ds_block_region');
+  $data = backdrop_static('ds_block_region');
   $region_blocks = variable_get('ds_extras_region_blocks', array());
 
   if (!empty($data[$delta])) {
@@ -566,8 +566,8 @@ function ds_extras_field_extra_fields() {
       if (!empty($field)) {
         list($entity, $bundle, $field_name) = explode('|', $field);
         $extra[check_plain($entity)][check_plain($bundle)]['display'][$field_name] = array(
-          'label' => drupal_ucfirst(str_replace('_', ' ', check_plain($field_name))),
-          'description' => drupal_ucfirst(str_replace('_', ' ', check_plain($field_name))),
+          'label' => backdrop_ucfirst(str_replace('_', ' ', check_plain($field_name))),
+          'description' => backdrop_ucfirst(str_replace('_', ' ', check_plain($field_name))),
           'weight' => 0,
         );
       }
@@ -610,7 +610,7 @@ function ds_extras_preprocess_view_layout(&$variables) {
     $variables['preprocess_keep'] = TRUE;
     ds_entity_variables($variables);
     if (isset($variables['#attached'])) {
-      drupal_process_attached($variables);
+      backdrop_process_attached($variables);
     }
   }
 }
@@ -651,7 +651,7 @@ function ds_extras_entity_view_alter(&$build, $entity_type) {
 
   // Page title options.
   if (variable_get('ds_extras_hide_page_title', FALSE)) {
-    $page_title = &drupal_static('ds_page_title');
+    $page_title = &backdrop_static('ds_page_title');
     if (isset($layout['settings']['hide_page_title']) && $layout['settings']['hide_page_title'] == 1 && ds_extras_is_entity_page_view($build, $entity_type)) {
       $page_title['title'] = '';
     }
@@ -717,7 +717,7 @@ function ds_extras_is_entity_page_view($build, $entity_type) {
  */
 function ds_extras_ds_field_theme_functions_info() {
   return array(
-    'theme_field' => t('Drupal default'),
+    'theme_field' => t('Backdrop default'),
     'theme_ds_field_reset' => t('Full Reset'),
     'theme_ds_field_minimal' => t('Minimal'),
     'theme_ds_field_expert' => t('Expert'),
@@ -741,7 +741,7 @@ function theme_ds_field_reset($variables) {
 
   // Render the items.
   foreach ($variables['items'] as $delta => $item) {
-    $output .= drupal_render($item);
+    $output .= backdrop_render($item);
   }
 
   return $output;
@@ -769,7 +769,7 @@ function theme_ds_field_minimal($variables) {
 
   // Render the items.
   foreach ($variables['items'] as $delta => $item) {
-    $output .= drupal_render($item);
+    $output .= backdrop_render($item);
   }
   $output .="</div>";
 
@@ -857,7 +857,7 @@ function theme_ds_field_expert($variables) {
     }
 
     // Render field content.
-    $output .= drupal_render($item);
+    $output .= backdrop_render($item);
 
     // Closing field item wrapper.
     if (isset($config['fi'])) {

@@ -153,7 +153,7 @@ function ds_extras_settings($form) {
     '#default_value' => variable_get('ds_extras_hidden_region', FALSE),
   );
 
-  $form['#attached']['js'][] = drupal_get_path('module', 'ds_extras') . '/js/ds_extras.admin.js';
+  $form['#attached']['js'][] = backdrop_get_path('module', 'ds_extras') . '/js/ds_extras.admin.js';
 
   $form = system_settings_form($form);
   $form['#submit'][] = 'ds_extras_settings_submit';
@@ -192,7 +192,7 @@ function ds_extras_settings_submit($form, &$form_state) {
  */
 function ds_extras_field_ui_alter(&$form, &$form_state) {
   // Attach js.
-  $form['#attached']['js'][] = drupal_get_path('module', 'ds_extras') . '/js/ds_extras.admin.js';
+  $form['#attached']['js'][] = backdrop_get_path('module', 'ds_extras') . '/js/ds_extras.admin.js';
 
   // Views displays.
   if ($form['#entity_type'] == 'ds_views') {
@@ -480,7 +480,7 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
   $form['ft']['lb']['#default_value'] = isset($field_settings['lb']) ? $field_settings['lb'] : '';
 
   // Let other modules make modifications to the settings form as needed.
-  drupal_alter('ds_field_theme_functions_settings_form_alter', $form, $field_settings);
+  backdrop_alter('ds_field_theme_functions_settings_form_alter', $form, $field_settings);
 }
 
 /**

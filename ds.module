@@ -215,7 +215,7 @@ function ds_get_layout_info() {
     $layouts = module_invoke_all('ds_layout_info');
 
     // Give modules a chance to alter the layouts information.
-    drupal_alter('ds_layout_info', $layouts);
+    backdrop_alter('ds_layout_info', $layouts);
 
     // Check that there is no 'content' region, but ignore panel layouts.
     // Because when entities are rendered, the field items are stored into a
@@ -229,7 +229,7 @@ function ds_get_layout_info() {
       }
     }
     if (!empty($errors)) {
-      drupal_set_message(t('Following layouts have a "content" region key which is invalid: %layouts.', array('%layouts' => implode(', ', $errors))), 'error');
+      backdrop_set_message(t('Following layouts have a "content" region key which is invalid: %layouts.', array('%layouts' => implode(', ', $errors))), 'error');
     }
   }
 
@@ -338,7 +338,7 @@ function ds_get_fields($entity_type, $cache = TRUE) {
       }
 
       // Give modules a change to alter fields.
-      drupal_alter('ds_fields_info', $fields, $entity_type);
+      backdrop_alter('ds_fields_info', $fields, $entity_type);
 
       $fields_cached[$entity_type] = $fields;
 
@@ -700,7 +700,7 @@ function ds_entity_variables(&$vars) {
         $vars['classes_array'] = array_unique(array_merge($vars['classes_array'], $vars['attributes_array']['class']));
         unset($vars['attributes_array']['class']);
       }
-      $vars['layout_attributes'] .= ' ' . drupal_attributes($vars['attributes']);
+      $vars['layout_attributes'] .= ' ' . backdrop_attributes($vars['attributes']);
     }
 
     // Token support for layout classes.
@@ -747,14 +747,14 @@ function ds_entity_variables(&$vars) {
 
     // Let other modules alter the ds array before creating the region variables.
     $context = array('entity' => isset($vars[$entity_type]) ? $vars[$entity_type] : (isset($vars['elements']['#' . $entity_type]) ? $vars['elements']['#' . $entity_type] : ''), 'entity_type' => $vars['elements']['#entity_type'], 'bundle' => $vars['elements']['#bundle'], 'view_mode' => $vars['elements']['#view_mode']);
-    drupal_alter('ds_pre_render', $layout_render_array, $context, $vars);
+    backdrop_alter('ds_pre_render', $layout_render_array, $context, $vars);
     foreach ($layout_render_array as $region_name => $content) {
       // In case this is a panels layout, add the region to the $content variable.
       if (isset($layout['module']) && $layout['module'] == 'panels') {
-        $vars['content'][$region_name] = drupal_render($content);
+        $vars['content'][$region_name] = backdrop_render($content);
       }
       else {
-        $vars[$region_name] = drupal_render($content);
+        $vars[$region_name] = backdrop_render($content);
       }
     }
   }
@@ -768,7 +768,7 @@ function ds_create_entity_context($entity_type, $entity, &$contexts, $context_ar
   if (empty($context_arguments)) {
     $context_arguments = array(array(
       'keyword' => $entity_type,
-      'identifier' => drupal_ucfirst($entity_type) . ' being viewed',
+      'identifier' => backdrop_ucfirst($entity_type) . ' being viewed',
       'id' => 1,
       'name' => 'entity_id:' . $entity_type,
       'settings' => array(),
@@ -872,7 +872,7 @@ function ds_render_ctools_field($field) {
         $content .= '<' . check_plain($title_wrapper) . ' class="title">' . $data->title . '</' . check_plain($title_wrapper) . '>';
       }
       if (is_array($data->content)) {
-        $content .= drupal_render($data->content);
+        $content .= backdrop_render($data->content);
       }
       else {
         $content .= $data->content;
@@ -901,7 +901,7 @@ function ds_render_block_field($field) {
 
   // Process the block if it respects visibility settings
   if (isset($field['properties']['block_visibility']) && $field['properties']['block_visibility']) {
-    drupal_alter('block_list', $block_info);
+    backdrop_alter('block_list', $block_info);
   }
 
   // Simulate _block_load_blocks() return, containing only our block.
@@ -915,16 +915,16 @@ function ds_render_block_field($field) {
       switch ($field['properties']['block_render']) {
         case DS_BLOCK_TEMPLATE:
           $renderable_block = _block_get_renderable_array($region_blocks);
-          return drupal_render($renderable_block);
+          return backdrop_render($renderable_block);
           break;
         case DS_BLOCK_TITLE_CONTENT:
           if (isset($block->subject) && isset($block->content) && $block->content) {
-            return '<h2 class="block-title">' . $block->subject . '</h2>' . drupal_render($block->content);
+            return '<h2 class="block-title">' . $block->subject . '</h2>' . backdrop_render($block->content);
           }
           break;
         case DS_BLOCK_CONTENT:
           if (isset($block->content) && $block->content) {
-            return drupal_render($block->content);
+            return backdrop_render($block->content);
           }
           break;
       }
@@ -1085,7 +1085,7 @@ function ds_render_user_picture($field) {
     $alt = t("@user's picture", array('@user' => $name));
     $vars = array('path' => $filepath, 'alt' => $alt, 'title' => $alt);
 
-    // If the image does not have a valid Drupal scheme (for eg. HTTP),
+    // If the image does not have a valid Backdrop scheme (for eg. HTTP),
     // don't load image styles.
     if (module_exists('image') && file_valid_uri($filepath)) {
       $vars['style_name'] = str_replace('ds_picture_', '', $field['formatter']);
@@ -1279,7 +1279,7 @@ function ds_contextual_links_view_alter(&$element, $items) {
     $element['#links']['manage-display'] = array(
       'title' => t('Manage display'),
       'href' => $admin_path,
-      'query' => drupal_get_destination(),
+      'query' => backdrop_get_destination(),
     );
   }
 }

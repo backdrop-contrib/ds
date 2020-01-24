@@ -9,7 +9,7 @@
  * Implements hook_views_plugins().
  */
 function ds_views_plugins() {
-  $path = drupal_get_path('module', 'ds');
+  $path = backdrop_get_path('module', 'ds');
   $views_plugins = array(
     'module' => 'ds',
     'row' => array(

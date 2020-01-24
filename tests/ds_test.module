@@ -272,7 +272,7 @@ function ds_test_ds_fields_info_alter(&$fields, $entity_type) {
  * Implements hook_ds_layouts_info().
  */
 function ds_test_ds_layout_info() {
-  $path = drupal_get_path('module', 'ds_test');
+  $path = backdrop_get_path('module', 'ds_test');
   $layouts = array(
     'dstest_1col' => array(
       'label' => t('Test One column'),

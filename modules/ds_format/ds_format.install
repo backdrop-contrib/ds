@@ -33,7 +33,7 @@ function ds_format_enable() {
     $ds_format = (object) $ds_format;
     filter_format_save($ds_format);
 
-    drupal_set_message(t('A <a href="@ds-code">Display Suite code</a> text format has been created.', array('@ds-code' => url('admin/config/content/formats/' . $ds_format->format))));
+    backdrop_set_message(t('A <a href="@ds-code">Display Suite code</a> text format has been created.', array('@ds-code' => url('admin/config/content/formats/' . $ds_format->format))));
   }
 }
 
@@ -41,6 +41,6 @@ function ds_format_enable() {
  * Implements hook_disable().
  */
 function ds_format_disable() {
-  drupal_set_message(t('The Display Suite Format module has been disabled. Any existing content that was using the Display Suite filter will now be visible in plain text. This might pose a security risk by exposing sensitive information, if any, used in the PHP code.'));
+  backdrop_set_message(t('The Display Suite Format module has been disabled. Any existing content that was using the Display Suite filter will now be visible in plain text. This might pose a security risk by exposing sensitive information, if any, used in the PHP code.'));
 }
 

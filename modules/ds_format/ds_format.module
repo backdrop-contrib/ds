@@ -56,7 +56,7 @@ function ds_format_php_eval($code, $entity, $build = array()) {
   // so code evaluted will not see the caller module as the current theme.
   // If theme info is not initialized get the path from theme_default.
   if (!isset($theme_info)) {
-    $theme_path = drupal_get_path('theme', $conf['theme_default']);
+    $theme_path = backdrop_get_path('theme', $conf['theme_default']);
   }
   else {
     $theme_path = dirname($theme_info->filename);

@@ -126,7 +126,7 @@ function drush_ds_build($name = NULL) {
  * Prepare a string for use as a valid machine name.
  */
 function ds_prepare_machine_name($string) {
-  $machine_name = str_replace(' ', '_', drupal_strtolower($string));
+  $machine_name = str_replace(' ', '_', backdrop_strtolower($string));
   // Remove characters not valid in function names.
   $machine_name = preg_replace('/[^a-z0-9_]/', '', $machine_name);
 
@@ -152,7 +152,7 @@ function ds_prepare_regions_html($region_names) {
 
   foreach ($region_names as $name) {
     $machine_name = ds_prepare_machine_name($name);
-    $html_class = drupal_html_class($name);
+    $html_class = backdrop_html_class($name);
 
     $output[] = <<<END
     <<?php print \${$machine_name}_wrapper; ?> class="ds-$html_class<?php print \${$machine_name}_classes; ?>">
@@ -205,7 +205,7 @@ function ds_prepare_regions_css($region_names) {
 
   foreach ($region_names as $name) {
     $machine_name = ds_prepare_machine_name($name);
-    $html_class = drupal_html_class($name);
+    $html_class = backdrop_html_class($name);
 
     $output[] = <<<END
 .ds-$html_class {

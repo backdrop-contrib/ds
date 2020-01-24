@@ -65,7 +65,7 @@ function ds_layout_list() {
       }
     }
   }
-  drupal_add_css(drupal_get_path('module', 'ds') . '/css/ds.admin.css');
+  backdrop_add_css(backdrop_get_path('module', 'ds') . '/css/ds.admin.css');
 
   return $build;
 }
@@ -132,7 +132,7 @@ function ds_emergency() {
  */
 function ds_emergency_fields_attach($form, &$form_state) {
   variable_set('ds_disable', $form_state['values']['ds_disable']);
-  drupal_set_message(t('The configuration options have been saved.'));
+  backdrop_set_message(t('The configuration options have been saved.'));
 }
 
 /**
@@ -157,11 +157,11 @@ function ds_emergency_region_to_block_submit($form, &$form_state) {
     }
 
     if ($variable_set) {
-      drupal_set_message(t('Block regions were removed.'));
+      backdrop_set_message(t('Block regions were removed.'));
       variable_set('ds_extras_region_blocks', $region_blocks);
     }
   }
   else {
-    drupal_set_message(t('No block regions were removed.'));
+    backdrop_set_message(t('No block regions were removed.'));
   }
 }

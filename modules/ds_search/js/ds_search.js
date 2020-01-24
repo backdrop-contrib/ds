@@ -4,10 +4,10 @@
 /**
  * Highlight words in search results with jQuery.
  */
-Drupal.behaviors.DSSearchHighlight = {
+Backdrop.behaviors.DSSearchHighlight = {
   attach: function (context) {
-    var selector = Drupal.settings.ds_search['selector'];
-    var search = Drupal.settings.ds_search['search'];
+    var selector = Backdrop.settings.ds_search['selector'];
+    var search = Backdrop.settings.ds_search['search'];
     var $selector = $(selector);
     // Split word.
 

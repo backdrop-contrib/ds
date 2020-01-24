@@ -104,13 +104,13 @@ function ds_custom_manage($field_key = '') {
         break;
 
       default:
-        drupal_set_message(t('Field not found'));
+        backdrop_set_message(t('Field not found'));
         $redirect = 'admin/structure/ds/fields';
         break;
     }
   }
 
-  drupal_goto($redirect);
+  backdrop_goto($redirect);
 }
 
 /**
@@ -159,7 +159,7 @@ function ds_shared_form(&$form, $field) {
   $entities = entity_get_info();
   foreach ($entities as $entity_type => $entity_info) {
     if ((isset($entity_info['fieldable']) && $entity_info['fieldable']) || $entity_type == 'ds_views') {
-      $entity_options[$entity_type] = drupal_ucfirst(str_replace('_', ' ', $entity_type));
+      $entity_options[$entity_type] = backdrop_ucfirst(str_replace('_', ' ', $entity_type));
     }
   }
   $form['entities'] = array(
@@ -253,7 +253,7 @@ function _ds_check_existing_ui_limit($entity_types, $bundle, $view_mode) {
     }
   }
   if (!$exists) {
-    drupal_set_message(t('Incorrect field limit combination: @bundle|@view_mode', array('@bundle' => $bundle, '@view_mode' => $view_mode)), 'error');
+    backdrop_set_message(t('Incorrect field limit combination: @bundle|@view_mode', array('@bundle' => $bundle, '@view_mode' => $view_mode)), 'error');
   }
 
   return $exists;
@@ -301,19 +301,19 @@ function ds_shared_form_submit($form, &$form_state) {
     ->execute();
 
   // Save field and clear ds_fields.
-  drupal_write_record('ds_fields', $field);
+  backdrop_write_record('ds_fields', $field);
   cache_clear_all('ds_fields:', 'cache', TRUE);
 
   // Redirect.
   $form_state['redirect'] = 'admin/structure/ds/fields';
-  drupal_set_message(t('The field %field has been saved', array('%field' => $field->label)));
+  backdrop_set_message(t('The field %field has been saved', array('%field' => $field->label)));
 }
 
 /**
  * Manage a custom field.
  */
 function ds_edit_custom_field_form($form, &$form_state, $custom_field = '') {
-  drupal_set_title(empty($custom_field) ? t('Add a code field') : t('Edit code field'));
+  backdrop_set_title(empty($custom_field) ? t('Add a code field') : t('Edit code field'));
 
   $custom_field = ds_shared_form($form, $custom_field);
 
@@ -374,7 +374,7 @@ function ds_custom_field_form_validate($form, &$form_state) {
  * Manage a CTools field.
  */
 function ds_edit_ctools_field_form($form, &$form_state, $ctools_field = '') {
-  drupal_set_title(empty($ctools_field) ? t('Add a dynamic field') : t('Edit dynamic field'));
+  backdrop_set_title(empty($ctools_field) ? t('Add a dynamic field') : t('Edit dynamic field'));
 
   $custom_field = ds_shared_form($form, $ctools_field);
   $form['info'] = array(
@@ -398,7 +398,7 @@ function ds_ctools_field_form_validate($form, &$form_state) {
  * Manage a Preprocess field.
  */
 function ds_edit_preprocess_field_form($form, &$form_state, $preprocess_field = '') {
-  drupal_set_title(empty($preprocess_field) ? t('Add a preprocess field') : t('Edit preprocess field'));
+  backdrop_set_title(empty($preprocess_field) ? t('Add a preprocess field') : t('Edit preprocess field'));
 
   $custom_field = ds_shared_form($form, $preprocess_field);
   $form['info'] = array(
@@ -420,7 +420,7 @@ function ds_preprocess_field_form_validate($form, &$form_state) {
  * Manage a custom block.
  */
 function ds_edit_block_field_form($form, &$form_state, $custom_block = '') {
-  drupal_set_title(empty($custom_block) ? t('Add a block field') : t('Edit block field'));
+  backdrop_set_title(empty($custom_block) ? t('Add a block field') : t('Edit block field'));
 
   $custom_block = ds_shared_form($form, $custom_block);
 
@@ -429,7 +429,7 @@ function ds_edit_block_field_form($form, &$form_state, $custom_block = '') {
     $module_blocks = module_invoke($module, 'block_info');
     if ($module_blocks) {
       foreach ($module_blocks as $module_key => $info) {
-        $blocks[drupal_ucfirst($module)][$module . '|' . $module_key] = $info['info'];
+        $blocks[backdrop_ucfirst($module)][$module . '|' . $module_key] = $info['info'];
       }
     }
   }
@@ -506,13 +506,13 @@ function ds_remove_fields_form($form, &$form_state, $field = '', $action = 'dele
       t('Are you sure you want to ' . $action . ' %field?', array('%field' => $field->label)),
       'admin/structure/ds/fields',
       t('This action cannot be undone.'),
-      t(drupal_ucfirst($action)),
+      t(backdrop_ucfirst($action)),
       t('Cancel')
     );
   }
   else {
-    drupal_set_message(t('Unknown field'));
-    drupal_goto('admin/structure/ds/fields');
+    backdrop_set_message(t('Unknown field'));
+    backdrop_goto('admin/structure/ds/fields');
   }
 }
 
@@ -547,7 +547,7 @@ function ds_remove_field_confirm_submit($form, &$form_state, $action = 'deleted'
 
   // Redirect.
   $form_state['redirect'] = 'admin/structure/ds/fields';
-  drupal_set_message(t('The field %field has been ' . $action, array('%field' => $field->label)));
+  backdrop_set_message(t('The field %field has been ' . $action, array('%field' => $field->label)));
 }
 
 /**
@@ -563,7 +563,7 @@ function ds_ajax_add_field($js, $field_type) {
   if (!$js) {
     // We don't support degrading this from js because we're not
     // using the server to remember the state of the table.
-    drupal_goto("admin/structure/ds/fields/" . $field_type);
+    backdrop_goto("admin/structure/ds/fields/" . $field_type);
     return;
   }
 
@@ -624,7 +624,7 @@ function ds_ajax_add_field($js, $field_type) {
     $output[] = ajax_command_invoke('#field-display-overview', 'dsRefreshDisplayTable');
   }
 
-  drupal_add_http_header('Content-Type', 'application/json');
+  backdrop_add_http_header('Content-Type', 'application/json');
   print ajax_render($output);
   exit;
 }
