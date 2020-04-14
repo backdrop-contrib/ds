@@ -26,7 +26,7 @@ function ds_views_plugins() {
     ),
   );
 
-  if (module_exists('ds_extras') && variable_get('ds_extras_vd')) {
+  if (module_exists('ds_extras') && config_get('ds.settings', 'ds_extras_vd')) {
     $views_plugins['row']['ds_fields'] = array(
       'uses fields' => TRUE,
       'title' => t('Display Suite fields'),

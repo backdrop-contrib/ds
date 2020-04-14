@@ -67,7 +67,7 @@ function _ds_menu() {
 //    'access arguments' => array('admin_display_suite'),
 //    'type' => MENU_VISIBLE_IN_BREADCRUMB,
 //  );
-//
+  //
 //  // Disable layout.
 //  $items['admin/structure/ds/disable'] = array(
 //    'title' => 'Disable layout',
@@ -78,7 +78,7 @@ function _ds_menu() {
 //    'access arguments' => array('admin_display_suite'),
 //    'type' => MENU_VISIBLE_IN_BREADCRUMB,
 //  );
-//
+  //
 //  // Enable layout.
 //  $items['admin/structure/ds/enable'] = array(
 //    'title' => 'Enable layout',
@@ -234,8 +234,9 @@ function _ds_entity_type_update($entity_type, $info, $action) {
       $new_id = $entity_type . '|' . $info->type . '|' . $record->view_mode;
       db_update('ds_layout_settings')
         ->fields(array(
-          'id' => $new_id,
-          'bundle' => $info->type)
+        'id' => $new_id,
+        'bundle' => $info->type,
+      )
         )
         ->condition('id', $old_id)
         ->execute();
@@ -246,8 +247,9 @@ function _ds_entity_type_update($entity_type, $info, $action) {
       $new_id = $entity_type . '|' . $info->type . '|' . $record->view_mode;
       db_update('ds_field_settings')
         ->fields(array(
-          'id' => $new_id,
-          'bundle' => $info->type)
+        'id' => $new_id,
+        'bundle' => $info->type,
+      )
         )
         ->condition('id', $old_id)
         ->execute();
@@ -271,7 +273,9 @@ function _ds_theme_registry_alter(&$theme_registry) {
     if (isset($entity_info[$entity]['fieldable']) && $entity_info[$entity]['fieldable']) {
 
       // User uses user_profile for theming.
-      if ($entity == 'user') $entity = 'user_profile';
+      if ($entity == 'user') {
+        $entity = 'user_profile';
+      }
 
       // Only add preprocess functions if entity exposes theme function.
       if (isset($theme_registry[$entity])) {
@@ -362,7 +366,7 @@ function _ds_ds_layout_info() {
       'path' => $path . '/layouts/ds_2col',
       'regions' => array(
         'left' => t('Left'),
-        'right' => t('Right')
+        'right' => t('Right'),
       ),
       'css' => TRUE,
       'image' => TRUE,
@@ -372,7 +376,7 @@ function _ds_ds_layout_info() {
       'path' => $path . '/layouts/ds_2col_fluid',
       'regions' => array(
         'left' => t('Left'),
-        'right' => t('Right')
+        'right' => t('Right'),
       ),
       'css' => TRUE,
       'image' => TRUE,
@@ -486,7 +490,7 @@ function _ds_ds_layout_info() {
 
   // Get layouts defined in the active theme and base theme (if applicable).
   $themes = list_themes();
-  $theme = variable_get('theme_default', 'bartik');
+  $theme = config_get('system.performance', 'theme_default');
 
   $base_theme = array();
   $ancestor = $theme;

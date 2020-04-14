@@ -9,10 +9,11 @@
  * Implements hook_ds_fields_info().
  */
 function ds_extras_ds_fields_info($entity_type) {
+  $config = config('ds_extras.settings');
   $fields = array();
 
   // Switch field support.
-  if (variable_get('ds_extras_switch_field', FALSE) && $entity_type == 'node') {
+  if ($config->get('ds_extras_switch_field') && $entity_type == 'node') {
     $fields[$entity_type]['ds_switch_field'] = array(
       'title' => t('Switch view mode'),
       'field_type' => DS_FIELD_TYPE_FUNCTION,
@@ -22,7 +23,7 @@ function ds_extras_ds_fields_info($entity_type) {
   }
 
   // Flag support.
-  if (variable_get('ds_extras_flag') && module_exists('flag')) {
+  if ($config->get('ds_extras_flag') && module_exists('flag')) {
     if ($entity_type == 'node') {
       $flags = flag_get_flags('node');
       foreach ($flags as $name => $flag) {
@@ -58,7 +59,7 @@ function ds_extras_ds_fields_info($entity_type) {
             'vd_title_h2' => t('H2 title'),
             'vd_title_p' => t('Paragraph title'),
           ),
-        )
+        ),
       ),
       'header' => array(
         'title' => t('Views header'),

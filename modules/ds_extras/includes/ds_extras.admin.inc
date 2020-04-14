@@ -9,7 +9,9 @@
  * Menu callback: Display Suite extras settings.
  */
 function ds_extras_settings($form) {
+  $config = config('ds_extras.settings');
 
+  $form['#config'] = 'ds_extras.settings';
   $form['additional_settings'] = array(
     '#type' => 'vertical_tabs',
     '#theme_wrappers' => array('vertical_tabs'),
@@ -27,16 +29,17 @@ function ds_extras_settings($form) {
     '#type' => 'checkbox',
     '#title' => t('Enable Field Templates'),
     '#description' => t('Customize the labels and the HTML output of your fields.'),
-    '#default_value' => variable_get('ds_extras_field_template', FALSE),
+    '#default_value' => $config->get('ds_extras_field_template'),
   );
 
   $theme_functions = module_invoke_all('ds_field_theme_functions_info');
+  // TODO This variable was probably removed in Backdrop without replacement.
   $form['additional_settings']['fs1']['ft-default'] = array(
     '#type' => 'select',
     '#title' => t('Default Field Template'),
     '#options' => $theme_functions,
     '#default_value' => variable_get('ft-default', 'theme_field'),
-    '#description' => t('Default will output the field as defined in Drupal Core.<br />Reset will strip all HTML.<br />Minimal adds a simple wrapper around the field.<br/>There is also an Expert Field Template that gives full control over the HTML, but can only be set per field.<br /><br />You can override this setting per field on the "Manage display" screens or when creating fields on the instance level.<br /><br /><strong>Template suggestions</strong><br />You can create .tpl files as well for these field theme functions, e.g. field--reset.tpl.php, field--minimal.tpl.php<br /><br /><label>CSS classes</label>You can add custom CSS classes on the <a href="!url">classes form</a>. Display Suite UI needs to be enabled for this. These classes can be added to fields using the Default Field Template.<br /><br /><label>Advanced</label>You can create your own custom field templates which need to be defined with hook_ds_field_theme_functions_info(). See ds.api.php for an example.', array('!url' => url('admin/structure/ds/classes'))),
+    '#description' => t('Default will output the field as defined in Backdrop Core.<br />Reset will strip all HTML.<br />Minimal adds a simple wrapper around the field.<br/>There is also an Expert Field Template that gives full control over the HTML, but can only be set per field.<br /><br />You can override this setting per field on the "Manage display" screens or when creating fields on the instance level.<br /><br /><strong>Template suggestions</strong><br />You can create .tpl files as well for these field theme functions, e.g. field--reset.tpl.php, field--minimal.tpl.php<br /><br /><label>CSS classes</label>You can add custom CSS classes on the <a href="!url">classes form</a>. Display Suite UI needs to be enabled for this. These classes can be added to fields using the Default Field Template.<br /><br /><label>Advanced</label>You can create your own custom field templates which need to be defined with hook_ds_field_theme_functions_info(). See ds.api.php for an example.', array('!url' => url('admin/structure/ds/classes'))),
     '#states' => array(
       'visible' => array(
         'input[name="additional_settings[fs1][ds_extras_field_template]"]' => array('checked' => TRUE),
@@ -44,6 +47,7 @@ function ds_extras_settings($form) {
     ),
   );
 
+  // TODO This variable was probably removed in Backdrop without replacement.
   $form['additional_settings']['fs1']['ft-kill-colon'] = array(
     '#type' => 'checkbox',
     '#title' => t('Hide colon'),
@@ -67,13 +71,13 @@ function ds_extras_settings($form) {
     '#type' => 'checkbox',
     '#title' => t('Enable extra fields'),
     '#description' => t('Make fields from other modules available on the "Manage display" screens.'),
-    '#default_value' => variable_get('ds_extras_fields_extra', FALSE),
+    '#default_value' => $config->get('ds_extras_fields_extra'),
   );
 
   $form['additional_settings']['fs2']['ds_extras_fields_extra_list'] = array(
     '#type' => 'textarea',
     '#description' => t('Enter fields line by line, where each line is a combination of entity type, bundle and field name. E.g. node|article|tweetbutton. It might be possible that the actual content of the field depends on configuration of that field/module.'),
-    '#default_value' => variable_get('ds_extras_fields_extra_list', FALSE),
+    '#default_value' => $config->get('ds_extras_fields_extra_list'),
     '#states' => array(
       'visible' => array(
         'input[name="additional_settings[fs2][ds_extras_fields_extra]"]' => array('checked' => TRUE),
@@ -90,35 +94,35 @@ function ds_extras_settings($form) {
     '#type' => 'checkbox',
     '#title' => t('View mode per node'),
     '#description' => t('Change view modes for individual nodes. A new tab \'Display settings\' will appear on the content create form.<br />You can also pass the name of a view mode through the URL, eg node/x?v=full.<br />If you install the Page manager module and override the node view, Page manager will win.'),
-    '#default_value' => variable_get('ds_extras_switch_view_mode', FALSE),
+    '#default_value' => $config->get('ds_extras_switch_view_mode'),
   );
 
   $form['additional_settings']['fs4']['ds_extras_hide_page_title'] = array(
     '#type' => 'checkbox',
     '#title' => t('Page title options'),
     '#description' => t('Hide or manually set the page title of the "Full content" view mode.'),
-    '#default_value' => variable_get('ds_extras_hide_page_title', FALSE),
+    '#default_value' => $config->get('ds_extras_hide_page_title'),
   );
 
   $form['additional_settings']['fs4']['ds_extras_hide_page_sidebars'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Disable Drupal blocks/regions'),
+    '#title' => t('Disable Backdrop blocks/regions'),
     '#description' => t('Add ability to disable all sidebar regions displayed in the theme. Note that some themes support this setting better than others. If in doubt, try with stock themes to see.'),
-    '#default_value' => variable_get('ds_extras_hide_page_sidebars', FALSE),
+    '#default_value' => $config->get('ds_extras_hide_page_sidebars'),
   );
 
   $form['additional_settings']['fs4']['ds_extras_field_permissions'] = array(
     '#type' => 'checkbox',
     '#title' => t('Field permissions'),
     '#description' => t('Enables view permissions on all Display Suite fields.'),
-    '#default_value' => variable_get('ds_extras_field_permissions', FALSE),
+    '#default_value' => $config->get('ds_extras_field_permissions'),
   );
 
   $form['additional_settings']['fs4']['ds_extras_region_to_block'] = array(
     '#type' => 'checkbox',
     '#title' => t('Region to block'),
     '#description' => t('Create additional regions exposed as block. Note: this will not work on the default view mode.'),
-    '#default_value' => variable_get('ds_extras_region_to_block', FALSE),
+    '#default_value' => $config->get('ds_extras_region_to_block'),
   );
 
   if (module_exists('views')) {
@@ -126,7 +130,7 @@ function ds_extras_settings($form) {
       '#type' => 'checkbox',
       '#title' => t('Views displays'),
       '#description' => t('Manage the layout of your Views layout with Field UI at !url.', array('!url' => l(url('admin/structure/ds/vd', array('absolute' => TRUE)), 'admin/structure/ds/vd'))),
-      '#default_value' => variable_get('ds_extras_vd', FALSE),
+      '#default_value' => $config->get('ds_extras_vd'),
     );
   }
 
@@ -135,7 +139,7 @@ function ds_extras_settings($form) {
       '#type' => 'checkbox',
       '#title' => t('Flag'),
       '#description' => t('Expose flags as fields on nodes.'),
-      '#default_value' => variable_get('ds_extras_flag', FALSE),
+      '#default_value' => $config->get('ds_extras_flag'),
     );
   }
 
@@ -143,14 +147,14 @@ function ds_extras_settings($form) {
     '#type' => 'checkbox',
     '#title' => t('View mode switcher'),
     '#description' => t('Adds a field with links to switch view modes inline with Ajax. Only works for nodes at this time. It does not work in combination with the reset layout.'),
-    '#default_value' => variable_get('ds_extras_switch_field', FALSE),
+    '#default_value' => $config->get('ds_extras_switch_field'),
   );
 
   $form['additional_settings']['fs4']['ds_extras_hidden_region'] = array(
     '#type' => 'checkbox',
     '#title' => t('Hidden region'),
     '#description' => t('Add a hidden region to the layouts. Fields will be built but not printed.'),
-    '#default_value' => variable_get('ds_extras_hidden_region', FALSE),
+    '#default_value' => $config->get('ds_extras_hidden_region'),
   );
 
   $form['#attached']['js'][] = backdrop_get_path('module', 'ds_extras') . '/js/ds_extras.admin.js';
@@ -184,6 +188,7 @@ function ds_extras_settings_submit($form, &$form_state) {
   cache_clear_all('theme_registry:', 'cache', TRUE);
   cache_clear_all('module_implements', 'cache_bootstrap');
   cache_clear_all('field_info_fields', 'cache_field');
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('menu_rebuild_needed', TRUE);
 }
 
@@ -191,6 +196,7 @@ function ds_extras_settings_submit($form, &$form_state) {
  * Alter Manage display screen.
  */
 function ds_extras_field_ui_alter(&$form, &$form_state) {
+  $config = config('ds_extras.settings');
   // Attach js.
   $form['#attached']['js'][] = backdrop_get_path('module', 'ds_extras') . '/js/ds_extras.admin.js';
 
@@ -202,7 +208,7 @@ function ds_extras_field_ui_alter(&$form, &$form_state) {
   }
 
   // Page title functionality, currently only works on nodes, users and taxonomy terms.
-  if (variable_get('ds_extras_hide_page_title', FALSE) && isset($form['#ds_layout']) && (in_array($form['#entity_type'], array('node', 'user', 'taxonomy_term', 'profile2')) && ($form['#view_mode'] == 'full' || $form['#view_mode'] == 'revision' ||  (variable_get('ds_extras_switch_view_mode', FALSE) && $form['#entity_type'] == 'node')) || $form['#entity_type'] == 'ds_views' || $form['#entity_type'] == 'profile2')) {
+  if ($config->get('ds_extras_hide_page_title') && isset($form['#ds_layout']) && (in_array($form['#entity_type'], array('node', 'user', 'taxonomy_term', 'profile2')) && ($form['#view_mode'] == 'full' || $form['#view_mode'] == 'revision' ||  ($config->get('ds_extras_switch_view_mode') && $form['#entity_type'] == 'node')) || $form['#entity_type'] == 'ds_views' || $form['#entity_type'] == 'profile2')) {
     $form['additional_settings']['ds_page_title'] = array(
       '#type' => 'fieldset',
       '#title' => t('Custom page title'),
@@ -211,10 +217,10 @@ function ds_extras_field_ui_alter(&$form, &$form_state) {
   }
 
   // Disable page regions.
-  if (variable_get('ds_extras_hide_page_sidebars', FALSE) && isset($form['#ds_layout']) && $form['#view_mode'] != 'form') {
+  if ($config->get('ds_extras_hide_page_sidebars') && isset($form['#ds_layout']) && $form['#view_mode'] != 'form') {
     $form['additional_settings']['ds_layouts']['hide_sidebars'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Disable Drupal blocks/regions'),
+      '#title' => t('Disable Backdrop blocks/regions'),
       '#default_value' => isset($form['#ds_layout']->settings['hide_sidebars']) ? $form['#ds_layout']->settings['hide_sidebars'] : FALSE,
       '#weight' => 3,
     );
@@ -222,7 +228,7 @@ function ds_extras_field_ui_alter(&$form, &$form_state) {
 
   // Region to block only fires if there is a layout and we're working on the
   // a view mode which is not equal to default.
-  if (isset($form['#ds_layout']) && $form['#view_mode'] != 'default' && variable_get('ds_extras_region_to_block', FALSE)) {
+  if (isset($form['#ds_layout']) && $form['#view_mode'] != 'default' && $config->get('ds_extras_region_to_block')) {
 
     $layout = $form['#ds_layout'];
 
@@ -232,7 +238,7 @@ function ds_extras_field_ui_alter(&$form, &$form_state) {
     $view_mode = $form['#view_mode'];
 
     $region_blocks_options = array();
-    $region_blocks = variable_get('ds_extras_region_blocks', array());
+    $region_blocks = $config->get('ds_extras_region_blocks');
     foreach ($region_blocks as $key => $block) {
       if ($block['info'] == "{$entity_type}_{$bundle}_{$view_mode}") {
         $region_blocks_options[$key] = t('Remove') . ' ' . $block['title'];
@@ -242,7 +248,7 @@ function ds_extras_field_ui_alter(&$form, &$form_state) {
     $form['additional_settings']['region_to_block'] = array(
       '#type' => 'fieldset',
       '#title' => t('Block regions'),
-      '#description' => t('Create additional regions in this layout which will be exposed as blocks. Note that preprocess fields will fail to print.')
+      '#description' => t('Create additional regions in this layout which will be exposed as blocks. Note that preprocess fields will fail to print.'),
     );
 
     $form['additional_settings']['region_to_block']['new_block_region'] = array(
@@ -282,6 +288,7 @@ function ds_extras_field_ui_alter(&$form, &$form_state) {
  */
 function ds_extras_field_template_settings_form(array &$form, array &$form_state, array $context) {
   $functions = module_invoke_all('ds_field_theme_functions_info');
+  // TODO This variable was probably removed in Backdrop without replacement.
   $default_field_function = variable_get('ft-default', 'theme_field');
   $key = $context['instance']['field_name'];
 
@@ -373,7 +380,7 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
       '#title' => t('Classes'),
       '#size' => '10',
       '#default_value' => isset($field_settings[$wrapper_key . '-cl']) ? $field_settings[$wrapper_key . '-cl'] : '',
-      '#description' => t('E.g.') .' ' . implode(', ', $classes),
+      '#description' => t('E.g.') . ' ' . implode(', ', $classes),
       '#states' => array(
         'visible' => array(
           ':input[name$="[ft][' . $wrapper_key . ']"]' => array('checked' => TRUE),
@@ -505,7 +512,7 @@ function ds_extras_ds_field_settings_form($field) {
   $form = array();
 
   // Switch field.
-  if (variable_get('ds_extras_switch_field') && $field['name'] == 'ds_switch_field') {
+  if (config_get('ds_extras.settings', 'ds_extras_switch_field') && $field['name'] == 'ds_switch_field') {
     $entity_type = $field['entity_type'];
     $bundle = $field['bundle'];
     $view_mode = $field['view_mode'];
@@ -547,6 +554,7 @@ function ds_extras_vd_field_ui_submit($form, &$form_state) {
  * Submit callback: manage block regions.
  */
 function ds_extras_block_submit($form, &$form_state) {
+  $config = config('ds_extras.settings');
 
   // Create new region.
   if (!empty($form_state['values']['additional_settings']['region_to_block']['new_block_region'])) {
@@ -562,15 +570,15 @@ function ds_extras_block_submit($form, &$form_state) {
     );
 
     $block_key = $form_state['values']['additional_settings']['region_to_block']['new_block_region_key'];
-    $region_blocks = variable_get('ds_extras_region_blocks', array());
+    $region_blocks = $config->get('ds_extras_region_blocks');
     $region_blocks[$block_key] = $block;
-    variable_set('ds_extras_region_blocks', $region_blocks);
+    config_set('ds_extras.settings', 'ds_extras_region_blocks', $region_blocks);
   }
 
   // Remove a region.
   if (isset($form_state['values']['additional_settings']['region_to_block']['remove_block_region'])) {
     $variable_set = FALSE;
-    $region_blocks = variable_get('ds_extras_region_blocks', array());
+    $region_blocks = $config->get('ds_extras_region_blocks');
     $remove = $form_state['values']['additional_settings']['region_to_block']['remove_block_region'];
     foreach ($remove as $key => $value) {
       if ($value !== 0 && $key == $value) {
@@ -586,7 +594,7 @@ function ds_extras_block_submit($form, &$form_state) {
     }
 
     if ($variable_set) {
-      variable_set('ds_extras_region_blocks', $region_blocks);
+      config_set('ds_extras.settings', 'ds_extras_region_blocks', $region_blocks);
     }
   }
 }
@@ -595,7 +603,7 @@ function ds_extras_block_submit($form, &$form_state) {
  * Return unique region to block.
  */
 function ds_extras_region_to_block_unique($name) {
-  $region_blocks = variable_get('ds_extras_region_blocks', array());
+  $region_blocks = config_get('ds_extras.settings', 'ds_extras_region_blocks');
   $value = strtr($name, array('-' => '_'));
   return isset($region_blocks[$value]) ? TRUE : FALSE;
 }

@@ -5,6 +5,10 @@
  * Display Suite example layout configuration.
  */
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function ds_example_layout() {
   return array(
     'label' => t('Example layout'),

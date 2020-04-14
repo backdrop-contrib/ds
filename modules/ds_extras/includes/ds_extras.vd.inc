@@ -40,7 +40,10 @@ function ds_extras_vd_overview() {
 
   if (empty($rows)) {
     $rows = array(
-      array(array('data' => t('No views selected.'), 'colspan' => '2')),
+      array(array(
+          'data' => t('No views selected.'),
+          'colspan' => '2',
+        )),
     );
   }
 
@@ -264,6 +267,7 @@ function ds_extras_vd_bundle_remove_submit($form, &$form_state) {
     ->execute();
 
   // Remove from bundle settings.
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_del('field_bundle_settings_ds_views__' . $bundle);
 
   // Clear entity cache and field info fields cache.

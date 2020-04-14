@@ -26,6 +26,10 @@ class views_plugin_ds_entity_view extends views_plugin_row {
 
   // Return base_field based on base_table. It might not be
   // the cleanest solution, it's the fastest though.
+  /**
+   * @todo Please document this function.
+   * @see http://drupal.org/node/1354
+   */
   function ds_views_3_support() {
     if (strpos($this->base_table, 'eck_') === 0) {
       // Base tables of entities created by entity construction kit (eck)
@@ -35,13 +39,34 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     }
 
     $base_table_fields = array(
-      'node' => array('field' => 'nid', 'entity_type' => 'node'),
-      'comment' => array('field' => 'cid', 'entity_type' => 'comment'),
-      'users' => array('field' => 'uid', 'entity_type' => 'user'),
-      'apachesolr' => array('field' => 'nid', 'entity_type' => 'node'),
-      'taxonomy_term_data' => array('field' => 'tid', 'entity_type' => 'taxonomy_term'),
-      'file_managed' => array('field' => 'fid', 'entity_type' => 'file'),
-      'micro' => array('field' => 'mid', 'entity_type' => 'micro'),
+      'node' => array(
+        'field' => 'nid',
+        'entity_type' => 'node',
+      ),
+      'comment' => array(
+        'field' => 'cid',
+        'entity_type' => 'comment',
+      ),
+      'users' => array(
+        'field' => 'uid',
+        'entity_type' => 'user',
+      ),
+      'apachesolr' => array(
+        'field' => 'nid',
+        'entity_type' => 'node',
+      ),
+      'taxonomy_term_data' => array(
+        'field' => 'tid',
+        'entity_type' => 'taxonomy_term',
+      ),
+      'file_managed' => array(
+        'field' => 'fid',
+        'entity_type' => 'file',
+      ),
+      'micro' => array(
+        'field' => 'mid',
+        'entity_type' => 'micro',
+      ),
     );
     $this->entity_type = isset($base_table_fields[$this->base_table]) ? $base_table_fields[$this->base_table]['entity_type'] : 'node';
     return isset($base_table_fields[$this->base_table]) ? $base_table_fields[$this->base_table]['field'] : 'nid';
@@ -62,8 +87,14 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     );
     $options['grouping_fieldset'] = array(
       'contains' => array(
-        'grouping' => array('default' => FALSE, 'bool' => TRUE),
-        'group_odd_even' => array('default' => FALSE, 'bool' => TRUE),
+        'grouping' => array(
+          'default' => FALSE,
+          'bool' => TRUE,
+        ),
+        'group_odd_even' => array(
+          'default' => FALSE,
+          'bool' => TRUE,
+        ),
         'group_field' => array('default' => ''),
         'group_field_function' => array('default' => ''),
       ),
@@ -75,13 +106,22 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     );
     $options['switch_fieldset'] = array(
       'contains' => array(
-        'switch' => array('default' => FALSE, 'bool' => TRUE),
+        'switch' => array(
+          'default' => FALSE,
+          'bool' => TRUE,
+        ),
       ),
     );
     $options['alternating_fieldset'] = array(
       'contains' => array(
-        'alternating' => array('default' => FALSE, 'bool' => TRUE),
-        'allpages' => array('default' => FALSE, 'bool' => TRUE),
+        'alternating' => array(
+          'default' => FALSE,
+          'bool' => TRUE,
+        ),
+        'allpages' => array(
+          'default' => FALSE,
+          'bool' => TRUE,
+        ),
         'item' => array(
           'default' => array(),
           'export' => 'ds_item_export_option',
@@ -90,7 +130,10 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     );
     $options['advanced_fieldset'] = array(
       'contains' => array(
-        'advanced' => array('default' => FALSE, 'bool' => TRUE),
+        'advanced' => array(
+          'default' => FALSE,
+          'bool' => TRUE,
+        ),
       ),
     );
     return $options;
@@ -116,8 +159,12 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     $view_mode_options = array();
     $entity_type = $this->view->base_table;
     // In case we're working with users or managed files, change the entity type variable.
-    if ($entity_type == 'users') $entity_type = 'user';
-    if ($entity_type == 'file_managed') $entity_type = 'file';
+    if ($entity_type == 'users') {
+      $entity_type = 'user';
+    }
+    if ($entity_type == 'file_managed') {
+      $entity_type = 'file';
+    }
     $entity_view_modes = ds_entity_view_modes($entity_type);
     foreach ($entity_view_modes as $key => $view_mode) {
       $view_mode_options[$key] = $view_mode['label'];
@@ -134,7 +181,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
       '#type' => 'select',
       '#default_value' => $this->options['view_mode'],
       '#options' => $view_mode_options,
-      '#description' => t('Select the default view mode for this view.')
+      '#description' => t('Select the default view mode for this view.'),
     );
     if ($entity_type == 'node') {
       $form['default_fieldset']['load_comments'] = array(
@@ -147,7 +194,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     }
 
     // Use view mode of display settings.
-    if ($entity_type == 'node' && variable_get('ds_extras_switch_view_mode', FALSE)) {
+    if ($entity_type == 'node' && config_get('ds.settings', 'ds_extras_switch_view_mode')) {
       $form['switch_fieldset'] = array(
         '#type' => 'fieldset',
         '#title' => t('Use view mode of display settings'),
@@ -158,7 +205,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
         '#type' => 'checkbox',
         '#title' => t('Use view mode of display settings'),
         '#default_value' => $this->options['switch_fieldset']['switch'],
-        '#description' => t('Use the alternative view mode selected in the display settings tab.')
+        '#description' => t('Use the alternative view mode selected in the display settings tab.'),
       );
     }
 
@@ -355,7 +402,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
         $this->entities = taxonomy_term_load_multiple($ids);
         if (function_exists('i18n_taxonomy_localize_terms')) {
           global $language;
-          foreach($this->entities as $index => &$entity) {
+          foreach ($this->entities as $index => &$entity) {
             $entity = i18n_taxonomy_localize_terms($entity, $language->language);
           }
         }
@@ -415,7 +462,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     $context = array(
       'entity' => $this->entities[$row->{$this->field_alias}],
       'view_name' => $this->view->name,
-      'display' => $this->view->current_display
+      'display' => $this->view->current_display,
     );
     backdrop_alter('ds_views_view_mode', $view_mode, $context);
     // Call the row render function.

@@ -294,7 +294,10 @@ function ds_field_ui_regions($form, $form_state) {
         t('Parent'),
         t('Region'),
         t('Label'),
-        array('data' => t('Format'), 'colspan' => 3),
+        array(
+          'data' => t('Format'),
+          'colspan' => 3,
+        ),
       );
     }
     else {
@@ -306,7 +309,10 @@ function ds_field_ui_regions($form, $form_state) {
         t('Name'),
         t('Field'),
         t('Widget'),
-        array('data' => t('Operations'), 'colspan' => 2),
+        array(
+          'data' => t('Operations'),
+          'colspan' => 2,
+        ),
       );
     }
 
@@ -328,7 +334,7 @@ function ds_field_ui_regions($form, $form_state) {
     $context = array(
       'entity_type' => $entity_type,
       'bundle' => $bundle,
-      'view_mode' => $view_mode
+      'view_mode' => $view_mode,
     );
     $region_info = array(
       'region_options' => &$region_options,
@@ -339,7 +345,7 @@ function ds_field_ui_regions($form, $form_state) {
     $region_options['hidden'] = $view_mode != 'form' ? t('Disabled') : t('Hidden');
     $table['#regions']['hidden'] = array(
       'title' => $view_mode != 'form' ? t('Disabled') : t('Hidden'),
-      'message' => t('No fields are hidden.')
+      'message' => t('No fields are hidden.'),
     );
 
     $region = array(
@@ -348,7 +354,7 @@ function ds_field_ui_regions($form, $form_state) {
       '#default_value' => 'hidden',
       '#attributes' => array(
         'class' => array('ds-field-region'),
-      )
+      ),
     );
 
     $limit_items = array(
@@ -674,7 +680,7 @@ function ds_field_ui_layouts_save($form, &$form_state) {
     $record->settings['wrappers'] = array();
     $record->settings['layout_wrapper'] = 'div';
     $record->settings['layout_attributes'] = '';
-    $record->settings['layout_attributes_merge'] = variable_get('ds_layout_attributes_merge', TRUE);
+    $record->settings['layout_attributes_merge'] = config_get('ds.settings', 'ds_layout_attributes_merge');
     $record->settings['layout_link_attribute'] = FALSE;
     $record->settings['layout_link_custom'] = '';
     $fields = _ds_sort_fields($form_state['values']['fields'], 'weight');
@@ -948,8 +954,8 @@ function ds_field_formatter_settings_form($field, $instance, $view_mode, $form, 
       $options[$key] = $info['label'];
     }
     $element['taxonomy_term_reference_view_mode'] = array(
-      '#title'   => t('View mode'),
-      '#type'    => 'select',
+      '#title' => t('View mode'),
+      '#type' => 'select',
       '#options' => $options,
       '#default_value' => $settings['taxonomy_term_reference_view_mode'],
     );
@@ -1003,7 +1009,7 @@ function ds_field_formatter_settings_summary($field, $instance, $view_mode) {
     $entity_info = entity_get_info('taxonomy_term');
     $modes = $entity_info['view modes'];
     $mode = $modes[$settings['taxonomy_term_reference_view_mode']]['label'];
-    $summary .= t('View mode: %mode', array('%mode' => $mode)) . '<br />';;
+    $summary .= t('View mode: %mode', array('%mode' => $mode)) . '<br />';
     $summary .= !empty($settings['use_content_language']) ? t('Use current content language') : t('Use field language');
   }
 
@@ -1040,12 +1046,13 @@ function ds_field_settings_summary($field, $form_state, $form, $view_mode) {
     $summary = module_invoke($field['module'], 'ds_field_format_summary', $field);
   }
 
-  if (module_exists('ds_extras') && variable_get('ds_extras_field_template', FALSE)) {
+  if (module_exists('ds_extras') && config_get('ds.settings', 'ds_extras_field_template')) {
     module_load_include('inc', 'ds_extras', 'includes/ds_extras.admin');
 
     // Field template summary
     if (!in_array($field['field_type'], array(DS_FIELD_TYPE_IGNORE, DS_FIELD_TYPE_PREPROCESS))) {
       $functions = module_invoke_all('ds_field_theme_functions_info');
+      // TODO This variable was probably removed in Backdrop without replacement.
       $default_field_function = variable_get('ft-default', 'theme_field');
       $field_function = isset($form_state['formatter_settings'][$field['name']]['ft']['func']) ? $form_state['formatter_settings'][$field['name']]['ft']['func'] : $default_field_function;
 
@@ -1072,8 +1079,8 @@ function ds_field_settings_summary($field, $form_state, $form, $view_mode) {
           'weight' => '',
           'settings' => isset($field['formatter_settings']) ? $field['formatter_settings'] : array(),
           'module' => '',
-        )
-      )
+        ),
+      ),
     ),
     'view_mode' => $view_mode,
     'ds' => TRUE,
@@ -1103,7 +1110,7 @@ function ds_field_settings_form($field, &$form_state, $entity_form, $view_mode) 
   $form = module_invoke($field['module'], 'ds_field_settings_form', $field);
 
   // Add field template settings to every field if enabled.
-  if (module_exists('ds_extras') && variable_get('ds_extras_field_template', FALSE)) {
+  if (module_exists('ds_extras') && config_get('ds.settings', 'ds_extras_field_template')) {
     $context = array(
       'instance' => array(
         'entity_type' => $field['entity_type'],
@@ -1116,7 +1123,9 @@ function ds_field_settings_form($field, &$form_state, $entity_form, $view_mode) 
     // Load the formatter settings form
     module_load_include('inc', 'ds_extras', 'includes/ds_extras.admin');
     // Protect against empty $form.
-    if (!is_array($form)) $form = array();
+    if (!is_array($form)) {
+      $form = array();
+    }
     if (!in_array($field['field_type'], array(DS_FIELD_TYPE_IGNORE, DS_FIELD_TYPE_PREPROCESS))) {
       ds_extras_field_template_settings_form($form, $form_state, $context);
     }
@@ -1592,12 +1601,12 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
       'header' => 'Header',
       'footer' => 'Footer',
       'aside' => 'Aside',
-      'figure' => 'Figure'
+      'figure' => 'Figure',
     );
     $form['additional_settings']['region_wrapper'] = array(
       '#type' => 'fieldset',
       '#title' => t('Custom wrappers'),
-      '#description' => t('Choose a wrapper. All Display Suite layouts support this option.')
+      '#description' => t('Choose a wrapper. All Display Suite layouts support this option.'),
     );
 
     // Hide the fieldset in case of the reset layout.
@@ -1633,7 +1642,7 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
       '#type' => 'checkbox',
       '#title' => t('Merge other layout attributes'),
       '#description' => 'Certain modules might provide additional attributes for the template wrapper, e.g. RDFa. Disable this option if you prefer to specify these attributes above.',
-      '#default_value' => isset($layout->settings['layout_attributes_merge']) ? $layout->settings['layout_attributes_merge'] : variable_get('ds_layout_attributes_merge', TRUE),
+      '#default_value' => isset($layout->settings['layout_attributes_merge']) ? $layout->settings['layout_attributes_merge'] : config_get('ds.settings', 'ds_layout_attributes_merge'),
       '#weight' => 12,
     );
 
@@ -1643,7 +1652,7 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
         '' => t('No link'),
         'content' => t('Link to content'),
         'custom' => t('Custom'),
-        'tokens' => t('Tokens')
+        'tokens' => t('Tokens'),
       ),
       '#title' => t('Add link'),
       '#description' => t('This will add an onclick attribute on the layout wrapper.'),
@@ -1659,8 +1668,8 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
       '#weight' => 13,
       '#states' => array(
         'visible' => array(array(
-          ':input[name="additional_settings[region_wrapper][layout_link_attribute]"]' => array(array("value" => "tokens"), array("value" => "custom")),
-        )),
+            ':input[name="additional_settings[region_wrapper][layout_link_attribute]"]' => array(array("value" => "tokens"), array("value" => "custom")),
+          )),
       ),
     );
 
@@ -1878,10 +1887,10 @@ function _ds_field_ui_table_layouts_preview(&$form, &$form_state, $ds_layouts, $
         $image = $chosen_layout['panels']['path'] . '/' . $chosen_layout['panels']['icon'];
       }
 
-      $form['additional_settings']['ds_layouts']['preview'] ['title'] = array(
+      $form['additional_settings']['ds_layouts']['preview']['title'] = array(
         '#markup' => '<div class="ds-layout-preview-title">' . $current_layout . '</div>',
       );
-      $form['additional_settings']['ds_layouts']['preview'] ['image'] = array(
+      $form['additional_settings']['ds_layouts']['preview']['image'] = array(
         '#markup' => '<div class="ds-layout-preview-image"><img src="' . base_path() . $image . '"/></div>',
       );
       $form['additional_settings']['ds_layouts']['preview']['info'] = array(
@@ -2013,7 +2022,7 @@ function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, &$form_s
   );
   // Load views file if entity type is not ds_views.
   // We need to cache the hook it's implementing.
-  if ($entity_type != 'ds_views' && module_exists('ds_extras') && variable_get('ds_extras_vd', FALSE)) {
+  if ($entity_type != 'ds_views' && module_exists('ds_extras') && config_get('ds.settings', 'ds_extras_vd')) {
     module_load_include('inc', 'ds_extras', 'includes/ds_extras.vd');
   }
   backdrop_alter('ds_fields_ui', $fields, $context);
@@ -2170,6 +2179,7 @@ function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, &$form_s
  *   A collection of form_state properties.
  */
 function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$form_state) {
+  $config = config('ds.settings');
   $entity_type = $form['#entity_type'];
   $bundle = $form['#bundle'];
   $view_mode = $form['#view_mode'];
@@ -2259,7 +2269,7 @@ function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$f
       }
 
       // Add the field templates form when needed
-      if (module_exists('ds_extras') && variable_get('ds_extras_field_template', FALSE)) {
+      if (module_exists('ds_extras') && $config->get('ds_extras_field_template')) {
         $context = array(
           'instance' => $instance,
           'view_mode' => $view_mode,
@@ -2267,7 +2277,9 @@ function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$f
 
         // Load the form
         module_load_include('inc', 'ds_extras', 'includes/ds_extras.admin');
-        if (!is_array($settings_form)) $settings_form = array();
+        if (!is_array($settings_form)) {
+          $settings_form = array();
+        }
         ds_extras_field_template_settings_form($settings_form, $form_state, $context);
       }
 
@@ -2329,11 +2341,12 @@ function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$f
       );
       backdrop_alter('field_formatter_settings_summary', $summary, $context);
 
-      if (module_exists('ds_extras') && variable_get('ds_extras_field_template', FALSE)) {
+      if (module_exists('ds_extras') && $config->get('ds_extras_field_template')) {
         module_load_include('inc', 'ds_extras', 'includes/ds_extras.admin');
 
         // Field template summary
         $functions = module_invoke_all('ds_field_theme_functions_info');
+        // TODO This variable was probably removed in Backdrop without replacement.
         $default_field_function = variable_get('ft-default', 'theme_field');
         $field_function = isset($form_state['formatter_settings'][$key]['ft']['func']) ? $form_state['formatter_settings'][$key]['ft']['func'] : $default_field_function;
 
@@ -2443,7 +2456,10 @@ function ds_field_row_form_format_summary_construct(&$table, $key) {
     '#type' => 'image_button',
     '#name' => $key . '_formatter_settings_edit',
     '#src' => 'core/misc/configure.png',
-    '#attributes' => array('class' => array('field-formatter-settings-edit'), 'alt' => t('Edit')),
+    '#attributes' => array(
+      'class' => array('field-formatter-settings-edit'),
+      'alt' => t('Edit'),
+    ),
     '#op' => 'edit',
     // Do not check errors for the 'Edit' button.
     '#limit_validation_errors' => array(),
@@ -2550,6 +2566,7 @@ function _ds_classes($name = 'ds_classes_regions') {
 
   if (!isset($classes[$name])) {
     $classes[$name] = array();
+    // TODO This variable was probably removed in Backdrop without replacement.
     $custom_classes = trim(variable_get($name, ''));
     if (!empty($custom_classes)) {
       $classes[$name][''] = t('None');

@@ -1,5 +1,6 @@
 name = Display Suite exportables test
 description = Tests for exportables with Display Suite.
 package = "Display Suite"
-core = 7.x
+backdrop = 1.x
+type = module
 hidden = TRUE

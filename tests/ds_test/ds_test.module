@@ -9,13 +9,21 @@
  * Implements hook_install().
  */
 function ds_test_install() {
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('ds_extras_region_to_block', TRUE);
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('ds_extras_switch_view_mode', TRUE);
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('ds_extras_hide_page_title', TRUE);
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('ds_extras_field_template', TRUE);
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('ds_extras_fields_extra', TRUE);
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('ds_extras_hide_page_sidebars', TRUE);
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('ds_extras_fields_extra_list', "node|article|ds_extras_extra_test_field\nnode|article|ds_extras_second_field");
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('ds_extras_vd', TRUE);
 
   db_update('system')
@@ -35,7 +43,9 @@ function ds_test_theme_registry_alter(&$theme_registry) {
     if (isset($entity_info[$entity]['fieldable']) && $entity_info[$entity]['fieldable']) {
 
       // User uses user_profile for theming.
-      if ($entity == 'user') $entity = 'user_profile';
+      if ($entity == 'user') {
+        $entity = 'user_profile';
+      }
 
       // Only add preprocess functions if entity exposes theme function.
       if (isset($theme_registry[$entity])) {
@@ -99,8 +109,8 @@ function ds_test_field_extra_fields() {
   // Register a single field to test that
   // extra fields in the hidden region are really hidden.
   $extra['node']['article']['display']['heavy_field'] = array(
-   'label' => t('Heavy extra test field'),
-   'weight' => 10,
+    'label' => t('Heavy extra test field'),
+    'weight' => 10,
   );
 
   return $extra;
@@ -286,7 +296,7 @@ function ds_test_ds_layout_info() {
       'path' => $path . '/dstest_2col',
       'regions' => array(
         'left' => t('Left'),
-        'right' => t('Right')
+        'right' => t('Right'),
       ),
       'css' => TRUE,
     ),
@@ -316,6 +326,9 @@ function ds_test_form_field_ui_display_overview_form_alter(&$form, &$form_state)
 function ds_test_ds_pre_render_alter(&$layout_render_array, $context) {
   $entity = $context['entity'];
   if (isset($entity->title) && $entity->title === 'Alter me!') {
-    $layout_render_array['left'][] = array('#markup' => 'cool!', '#weight' => 20);
+    $layout_render_array['left'][] = array(
+      '#markup' => 'cool!',
+      '#weight' => 20,
+    );
   }
 }

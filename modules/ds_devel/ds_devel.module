@@ -41,6 +41,6 @@ function ds_devel_render_object($type, $node, $view_mode = 'full') {
   }
 
   return array(
-    '#markup' => '<div>' . implode(' - ', $links) . '</div><hr /><code><pre>' . check_plain($markup) . '</pre></code>'
+    '#markup' => '<div>' . implode(' - ', $links) . '</div><hr /><code><pre>' . check_plain($markup) . '</pre></code>',
   );
 }

@@ -12,11 +12,11 @@ function ds_ui_permission() {
   return array(
     'admin_fields' => array(
       'title' => t('Administer fields'),
-      'description' => t('Manage fields for every entity.')
+      'description' => t('Manage fields for every entity.'),
     ),
     'admin_classes' => array(
       'title' => t('Administer classes'),
-      'description' => t('Manage classes.')
+      'description' => t('Manage classes.'),
     ),
   );
 }

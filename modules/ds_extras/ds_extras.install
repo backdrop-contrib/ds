@@ -5,7 +5,7 @@
  * Install file.
  */
 
- /**
+/**
  * Implements hook_install().
  */
 function ds_extras_install() {
@@ -19,6 +19,10 @@ function ds_extras_install() {
   foreach ($schema['node_revision']['fields'] as $name => $spec) {
     db_add_field('node_revision', $name, $spec);
   }
+  // Dynamically generated variable data was detected on the following lines.
+  // /ds/modules/ds_extras/includes/ds_extras.admin.inc line 598
+  // /ds/modules/ds_extras/ds_extras.module line 368
+  // /ds/modules/ds_extras/ds_extras.module line 385
 }
 
 /**
@@ -28,7 +32,6 @@ function ds_extras_schema() {
 
   $schema['ds_vd'] = array(
     'description' => 'The base table for views displays.',
-
     // CTools export definitions.
     'export' => array(
       'key' => 'vd',
@@ -42,7 +45,6 @@ function ds_extras_schema() {
         'current_version' => 1,
       ),
     ),
-
     'fields' => array(
       'vd' => array(
         'description' => 'The primary identifier for the views display.',
@@ -87,49 +89,71 @@ function ds_extras_schema_alter(&$schema) {
  * Implements hook_uninstall().
  */
 function ds_extras_uninstall() {
-  variable_del('ds_extras_region_to_block');
-  variable_del('ds_extras_region_blocks');
-  variable_del('ds_extras_switch_view_mode');
-  variable_del('ds_extras_vd');
-  variable_del('ds_extras_hide_page_title');
-  variable_del('ds_extras_field_template');
+  config_clear('ds_extras.settings', 'ds_extras_region_to_block');
+  config_clear('ds_extras.settings', 'ds_extras_region_blocks');
+  config_clear('ds_extras.settings', 'ds_extras_switch_view_mode');
+  config_clear('ds_extras.settings', 'ds_extras_vd');
+  config_clear('ds_extras.settings', 'ds_extras_hide_page_title');
+  config_clear('ds_extras.settings', 'ds_extras_field_template');
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_del('ds_classes_fields');
-  variable_del('ds_extras_fields_extra');
-  variable_del('ds_extras_fields_extra_list');
-  variable_del('ds_extras_switch_field');
-  variable_del('ds_extras_editor_switch');
+  config_clear('ds_extras.settings', 'ds_extras_fields_extra');
+  config_clear('ds_extras.settings', 'ds_extras_fields_extra_list');
+  config_clear('ds_extras.settings', 'ds_extras_switch_field');
+  config_clear('ds_extras.settings', 'ds_extras_editor_switch');
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_del('ft-default');
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_del('ft-kill-colon');
-  variable_del('ds_extras_flag');
-  variable_del('ds_extras_hidden_region');
-  variable_del('ds_extras_hide_page_sidebars');
+  config_clear('ds_extras.settings', 'ds_extras_flag');
+  config_clear('ds_extras.settings', 'ds_extras_hidden_region');
+  config_clear('ds_extras.settings', 'ds_extras_hide_page_sidebars');
   db_drop_field('node_revision', 'ds_switch');
 }
 
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function ds_extras_update_7200() { }
+
 /**
- * Fix storage of formatter settings in ds_field_settings table.
+ * Implements hook_update_last_removed().
  */
-function ds_extras_update_7200() {
-  ctools_include('export');
-  $ds_field_settings = ctools_export_crud_load_all('ds_field_settings');
-  db_truncate('ds_field_settings')->execute();
-  foreach ($ds_field_settings as $layout => $field_settings) {
-    $record = $field_settings;
-    foreach ($field_settings->settings as $field => $settings) {
-      // Move any field template settings to 'formatter_settings' key.
-      if (isset($settings['ft'])) {
-        $settings['formatter_settings']['ft'] = $settings['ft'];
-        unset($settings['ft']);
-      }
+function ds_extras_update_last_removed() {
+  return 7200;
+}
 
-      // Inspect the classes key, in case it's an array, something went
-      // wrong during saving, simply unset the array completely.
-      if (isset($settings['formatter_settings']['ft']['classes']) && is_array($settings['formatter_settings']['ft']['classes'])) {
-        unset($settings['formatter_settings']['ft']['classes']);
-      }
-
-      $record->settings[$field] = $settings;
-    }
-    backdrop_write_record('ds_field_settings', $record);
-  }
+/**
+ * Implements hook_update_N().
+ */
+function ds_extras_update_1000() {
+  $config = config('ds_extras.settings');
+  $config->set('ds_extras_switch_field', update_variable_get('ds_extras_switch_field', ''));
+  $config->set('ds_extras_flag', update_variable_get('ds_extras_flag', 'FALSE'));
+  $config->set('ds_extras_vd', update_variable_get('ds_extras_vd', 'FALSE'));
+  $config->set('ds_extras_hidden_region', update_variable_get('ds_extras_hidden_region', 'FALSE'));
+  $config->set('ds_extras_switch_view_mode', update_variable_get('ds_extras_switch_view_mode', 'FALSE'));
+  $config->set('ds_extras_field_permissions', update_variable_get('ds_extras_field_permissions', 'FALSE'));
+  $config->set('ds_extras_region_blocks', update_variable_get('ds_extras_region_blocks', 'dynamic value in file /ds/modules/ds_extras/includes/ds_extras.admin.inc line 598'));
+  $config->set('ds_extras_view_modes_node_type', update_variable_get('ds_extras_view_modes_node_type', 'dynamic variable in file /ds/modules/ds_extras/ds_extras.module line 368'));
+  $config->set('ds_extras_view_modes_nodetype', update_variable_get('ds_extras_view_modes_nodetype', 'dynamic variable in file /ds/modules/ds_extras/ds_extras.module line 385'));
+  $config->set('ds_extras_fields_extra', update_variable_get('ds_extras_fields_extra', 'FALSE'));
+  $config->set('ds_extras_fields_extra_list', update_variable_get('ds_extras_fields_extra_list', 'FALSE'));
+  $config->set('ds_extras_hide_page_title', update_variable_get('ds_extras_hide_page_title', 'FALSE'));
+  $config->set('ds_extras_field_template', update_variable_get('ds_extras_field_template', 'FALSE'));
+  $config->set('ds_extras_hide_page_sidebars', update_variable_get('ds_extras_hide_page_sidebars', 'FALSE'));
+  $config->set('ds_extras_region_to_block', update_variable_get('ds_extras_region_to_block', 'FALSE'));
+  update_variable_del('ds_extras_switch_field');
+  update_variable_del('ds_extras_flag');
+  update_variable_del('ds_extras_vd');
+  update_variable_del('ds_extras_hidden_region');
+  update_variable_del('ds_extras_switch_view_mode');
+  update_variable_del('ds_extras_field_permissions');
+  update_variable_del('ds_extras_region_blocks');
+  update_variable_del('ds_extras_view_modes_node_type');
+  update_variable_del('ds_extras_view_modes_nodetype');
+  update_variable_del('ds_extras_fields_extra');
+  update_variable_del('ds_extras_fields_extra_list');
+  update_variable_del('ds_extras_hide_page_title');
+  update_variable_del('ds_extras_field_template');
+  update_variable_del('ds_extras_hide_page_sidebars');
+  update_variable_del('ds_extras_region_to_block');
 }

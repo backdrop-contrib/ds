@@ -9,10 +9,11 @@
  * Implements hook_ds_fields_info().
  */
 function ds_ds_fields_info($entity_type) {
+  $config = config('ds.settings');
 
   /* --------------------------------------------------------------
-     Custom fields.
-    -------------------------------------------------------------- */
+   Custom fields.
+   -------------------------------------------------------------- */
 
 //  ctools_include('export');
 //  $custom_fields = ctools_export_crud_load_all('ds_fields');
@@ -31,8 +32,8 @@ function ds_ds_fields_info($entity_type) {
 //  }
 
   /* --------------------------------------------------------------
-     General node fields.
-    -------------------------------------------------------------- */
+   General node fields.
+   -------------------------------------------------------------- */
 
   // Node title.
   $fields['node']['title'] = array(
@@ -42,12 +43,25 @@ function ds_ds_fields_info($entity_type) {
     'properties' => array(
       'entity_render_key' => 'title',
       'settings' => array(
-        'link' => array('type' => 'select', 'options' => array('no', 'yes')),
-        'wrapper' => array('type' => 'textfield', 'description' => t('Eg: h1, h2, p')),
-        'class' => array('type' => 'textfield', 'description' => t('Put a class on the wrapper. Eg: block-title')),
+        'link' => array(
+          'type' => 'select',
+          'options' => array('no', 'yes'),
+        ),
+        'wrapper' => array(
+          'type' => 'textfield',
+          'description' => t('Eg: h1, h2, p'),
+        ),
+        'class' => array(
+          'type' => 'textfield',
+          'description' => t('Put a class on the wrapper. Eg: block-title'),
+        ),
       ),
-      'default' => array('wrapper' => 'h2', 'link' => 0, 'class' => ''),
-    )
+      'default' => array(
+        'wrapper' => 'h2',
+        'link' => 0,
+        'class' => '',
+      ),
+    ),
   );
 
   // Links.
@@ -62,7 +76,8 @@ function ds_ds_fields_info($entity_type) {
       'title' => t('Comments'),
       'field_type' => DS_FIELD_TYPE_IGNORE,
       'ui_limit' => array(
-        '*|full', '*|default',
+        '*|full',
+        '*|default',
       ),
     );
   }
@@ -75,12 +90,27 @@ function ds_ds_fields_info($entity_type) {
     'properties' => array(
       'settings' => array(
         'link text' => array('type' => 'textfield'),
-        'link class' => array('type' => 'textfield', 'description' => t('Put a class on the link. Eg: btn btn-default')),
-        'wrapper' => array('type' => 'textfield', 'description' => t('Eg: h1, h2, p')),
-        'class' => array('type' => 'textfield', 'description' => t('Put a class on the wrapper. Eg: block-title')),
+        'link class' => array(
+          'type' => 'textfield',
+          'description' => t('Put a class on the link. Eg: btn btn-default'),
+        ),
+        'wrapper' => array(
+          'type' => 'textfield',
+          'description' => t('Eg: h1, h2, p'),
+        ),
+        'class' => array(
+          'type' => 'textfield',
+          'description' => t('Put a class on the wrapper. Eg: block-title'),
+        ),
       ),
-      'default' => array('link text' => 'Read more', 'link class' => '', 'wrapper' => '', 'class' => '', 'link' => 1),
-    )
+      'default' => array(
+        'link text' => 'Read more',
+        'link class' => '',
+        'wrapper' => '',
+        'class' => '',
+        'link' => 1,
+      ),
+    ),
   );
 
   // Author.
@@ -91,7 +121,7 @@ function ds_ds_fields_info($entity_type) {
     'properties' => array(
       'formatters' => array(
         'author' => t('Author'),
-        'author_linked' => t('Author linked to profile')
+        'author_linked' => t('Author linked to profile'),
       ),
     ),
   );
@@ -137,7 +167,7 @@ function ds_ds_fields_info($entity_type) {
   }
 
   // User picture
-  if (variable_get('user_pictures', 0)) {
+  if (config_get('system.performance', 'user_pictures')) {
     $key = 'user_picture';
     $type = DS_FIELD_TYPE_IGNORE;
     $picture_formatters = array();
@@ -165,13 +195,13 @@ function ds_ds_fields_info($entity_type) {
   }
 
   /* --------------------------------------------------------------
-     Book support.
-    -------------------------------------------------------------- */
+   Book support.
+   -------------------------------------------------------------- */
 
   if (module_exists('book')) {
 
     $ui_limit = array();
-    $types = variable_get('book_allowed_types', array('book'));
+    $types = config_get('book.settings', 'book_allowed_types');
     foreach ($types as $type) {
       $ui_limit[] = $type . '|full';
     }
@@ -186,8 +216,8 @@ function ds_ds_fields_info($entity_type) {
   }
 
   /* --------------------------------------------------------------
-     Comment support.
-    -------------------------------------------------------------- */
+   Comment support.
+   -------------------------------------------------------------- */
 
   if (module_exists('comment')) {
 
@@ -238,7 +268,7 @@ function ds_ds_fields_info($entity_type) {
     );
 
     // User signature.
-    if (variable_get('user_signatures', 0)) {
+    if (config_get('system.performance', 'user_signatures')) {
       $fields['comment']['signature'] = array(
         'title' => t('User signature'),
         'field_type' => DS_FIELD_TYPE_PREPROCESS,
@@ -246,7 +276,7 @@ function ds_ds_fields_info($entity_type) {
     }
 
     // User picture
-    if (variable_get('user_pictures', 0)) {
+    if (config_get('system.performance', 'user_pictures')) {
       $key = 'picture';
       $type = DS_FIELD_TYPE_PREPROCESS;
       $picture_formatters = array();
@@ -275,8 +305,8 @@ function ds_ds_fields_info($entity_type) {
   }
 
   /* --------------------------------------------------------------
-     User support.
-    -------------------------------------------------------------- */
+   User support.
+   -------------------------------------------------------------- */
 
   // Username
   $fields['user']['name'] = array(
@@ -286,16 +316,29 @@ function ds_ds_fields_info($entity_type) {
     'properties' => array(
       'entity_render_key' => 'name',
       'settings' => array(
-        'link' => array('type' => 'select', 'options' => array('no', 'yes')),
-        'wrapper' => array('type' => 'textfield', 'description' => t('Eg: h1, h2, p')),
-        'class' => array('type' => 'textfield', 'description' => t('Put a class on the wrapper. Eg: block-title')),
+        'link' => array(
+          'type' => 'select',
+          'options' => array('no', 'yes'),
+        ),
+        'wrapper' => array(
+          'type' => 'textfield',
+          'description' => t('Eg: h1, h2, p'),
+        ),
+        'class' => array(
+          'type' => 'textfield',
+          'description' => t('Put a class on the wrapper. Eg: block-title'),
+        ),
       ),
-      'default' => array('wrapper' => 'h2', 'link' => 0, 'class' => ''),
-    )
+      'default' => array(
+        'wrapper' => 'h2',
+        'link' => 0,
+        'class' => '',
+      ),
+    ),
   );
 
   // User signature
-  if (variable_get('user_signatures', 0)) {
+  if (config_get('system.performance', 'user_signatures')) {
     $fields['user']['user_signature'] = array(
       'title' => t('User signature'),
       'field_type' => DS_FIELD_TYPE_FUNCTION,
@@ -308,7 +351,7 @@ function ds_ds_fields_info($entity_type) {
   }
 
   // User picture
-  if (variable_get('user_pictures', 0)) {
+  if (config_get('system.performance', 'user_pictures')) {
     $key = 'user_picture';
     $type = DS_FIELD_TYPE_IGNORE;
     $picture_formatters = array();
@@ -336,8 +379,8 @@ function ds_ds_fields_info($entity_type) {
   }
 
   /* --------------------------------------------------------------
-     Taxonomy support.
-    -------------------------------------------------------------- */
+   Taxonomy support.
+   -------------------------------------------------------------- */
 
   if (module_exists('taxonomy')) {
     // Taxonomy term title.
@@ -348,12 +391,25 @@ function ds_ds_fields_info($entity_type) {
       'properties' => array(
         'entity_render_key' => 'name',
         'settings' => array(
-          'link' => array('type' => 'select', 'options' => array('no', 'yes')),
-          'wrapper' => array('type' => 'textfield', 'description' => t('Eg: h1, h2, p')),
-          'class' => array('type' => 'textfield', 'description' => t('Put a class on the wrapper. Eg: block-title')),
+          'link' => array(
+            'type' => 'select',
+            'options' => array('no', 'yes'),
+          ),
+          'wrapper' => array(
+            'type' => 'textfield',
+            'description' => t('Eg: h1, h2, p'),
+          ),
+          'class' => array(
+            'type' => 'textfield',
+            'description' => t('Put a class on the wrapper. Eg: block-title'),
+          ),
         ),
-        'default' => array('wrapper' => 'h2', 'link' => 0, 'class' => ''),
-      )
+        'default' => array(
+          'wrapper' => 'h2',
+          'link' => 0,
+          'class' => '',
+        ),
+      ),
     );
 
     // Taxonomy term link.
@@ -364,11 +420,22 @@ function ds_ds_fields_info($entity_type) {
       'properties' => array(
         'settings' => array(
           'link text' => array('type' => 'textfield'),
-          'wrapper' => array('type' => 'textfield', 'description' => t('Eg: h1, h2, p')),
-          'class' => array('type' => 'textfield', 'description' => t('Put a class on the wrapper. Eg: block-title')),
+          'wrapper' => array(
+            'type' => 'textfield',
+            'description' => t('Eg: h1, h2, p'),
+          ),
+          'class' => array(
+            'type' => 'textfield',
+            'description' => t('Put a class on the wrapper. Eg: block-title'),
+          ),
         ),
-        'default' => array('link text' => 'Read more', 'wrapper' => '', 'class' => '', 'link' => 1),
-      )
+        'default' => array(
+          'link text' => 'Read more',
+          'wrapper' => '',
+          'class' => '',
+          'link' => 1,
+        ),
+      ),
     );
   }
 
@@ -383,12 +450,25 @@ function ds_ds_fields_info($entity_type) {
         'properties' => array(
           'entity_render_key' => 'title',
           'settings' => array(
-            'link' => array('type' => 'select', 'options' => array('no', 'yes')),
-            'wrapper' => array('type' => 'textfield', 'description' => t('Eg: h1, h2, p')),
-            'class' => array('type' => 'textfield', 'description' => t('Put a class on the wrapper. Eg: block-title')),
+            'link' => array(
+              'type' => 'select',
+              'options' => array('no', 'yes'),
+            ),
+            'wrapper' => array(
+              'type' => 'textfield',
+              'description' => t('Eg: h1, h2, p'),
+            ),
+            'class' => array(
+              'type' => 'textfield',
+              'description' => t('Put a class on the wrapper. Eg: block-title'),
+            ),
           ),
-          'default' => array('wrapper' => 'h2', 'link' => 0, 'class' => ''),
-        )
+          'default' => array(
+            'wrapper' => 'h2',
+            'link' => 0,
+            'class' => '',
+          ),
+        ),
       );
     }
   }
@@ -402,12 +482,25 @@ function ds_ds_fields_info($entity_type) {
       'properties' => array(
         'entity_render_key' => 'title',
         'settings' => array(
-          'link' => array('type' => 'select', 'options' => array('no', 'yes')),
-          'wrapper' => array('type' => 'textfield', 'description' => t('Eg: h1, h2, p')),
-          'class' => array('type' => 'textfield', 'description' => t('Put a class on the wrapper. Eg: block-title')),
+          'link' => array(
+            'type' => 'select',
+            'options' => array('no', 'yes'),
+          ),
+          'wrapper' => array(
+            'type' => 'textfield',
+            'description' => t('Eg: h1, h2, p'),
+          ),
+          'class' => array(
+            'type' => 'textfield',
+            'description' => t('Put a class on the wrapper. Eg: block-title'),
+          ),
         ),
-        'default' => array('wrapper' => 'h2', 'link' => 0, 'class' => ''),
-      )
+        'default' => array(
+          'wrapper' => 'h2',
+          'link' => 0,
+          'class' => '',
+        ),
+      ),
     );
   }
 

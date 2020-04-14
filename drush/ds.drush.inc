@@ -14,13 +14,13 @@ function ds_drush_command() {
   $items['ds-build'] = array(
     'description' => 'Create a basic template and configuration file for a new Display Suite layout.',
     'arguments' => array(
-      'name'    => 'Name for your layout.',
+      'name' => 'Name for your layout.',
     ),
     'options' => array(
-      'name'    => 'Name for your layout.',
+      'name' => 'Name for your layout.',
       'regions' => 'Regions for your layout, comma-separated.',
-      'css'     => 'Set this to true if you want to include a CSS file for your layout.',
-      'image'   => 'Set this to true if you want to include a preview image for your layout.',
+      'css' => 'Set this to true if you want to include a CSS file for your layout.',
+      'image' => 'Set this to true if you want to include a preview image for your layout.',
     ),
     'examples' => array(
       'drush ds-build "My layout name"' => 'Create a layout with a few example regions.',

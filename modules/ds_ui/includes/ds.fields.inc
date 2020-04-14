@@ -15,7 +15,7 @@ function ds_custom_fields_list() {
 
   if (!empty($config_names)) {
     $rows = array();
-    foreach($config_names as $config_name) {
+    foreach ($config_names as $config_name) {
       $config = config($config_name);
 
       $row = array();
@@ -386,7 +386,14 @@ function ds_edit_ctools_field_form($form, &$form_state, $ctools_field = '') {
 function ds_ctools_field_form_validate($form, &$form_state) {
   $form_state['field']->field_type = DS_FIELD_TYPE_CTOOLS;
   $form_state['field']->properties['default'] = array();
-  $form_state['field']->properties['settings'] = array('show_title' => array('type' => 'checkbox'), 'title_wrapper' => array('type' => 'textfield', 'description' => t('Eg: h1, h2, p')), 'ctools' => array('type' => 'ctools'));
+  $form_state['field']->properties['settings'] = array(
+    'show_title' => array('type' => 'checkbox'),
+    'title_wrapper' => array(
+      'type' => 'textfield',
+      'description' => t('Eg: h1, h2, p'),
+    ),
+    'ctools' => array('type' => 'ctools'),
+  );
 }
 
 /**
@@ -429,7 +436,7 @@ function ds_edit_block_field_form($form, &$form_state, $custom_block = '') {
     }
   }
   ksort($blocks);
-  foreach($blocks as &$subarray) {
+  foreach ($blocks as &$subarray) {
     asort($subarray);
   }
 
@@ -521,6 +528,8 @@ function ds_delete_field_confirm_submit($form, &$form_state) {
  */
 function ds_remove_field_confirm_submit($form, &$form_state, $action = 'deleted') {
   $config = config('ds.field.' . $form['#ds_field']);
+  $label = $config->get('label');
+
   $config->delete();
 
   // Clear cache.
@@ -528,7 +537,7 @@ function ds_remove_field_confirm_submit($form, &$form_state, $action = 'deleted'
 
   // Redirect.
   $form_state['redirect'] = 'admin/structure/ds/fields';
-  backdrop_set_message(t('The field %field has been ' . $action, array('%field' => $field->label)));
+  backdrop_set_message(t('The field %field has been ' . $action, array('%field' => $label)));
 }
 
 /**

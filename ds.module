@@ -30,7 +30,7 @@ function ds_permission() {
   return array(
     'admin_display_suite' => array(
       'title' => t('Administer Display Suite'),
-      'description' => t('General permission for Display Suite settings pages.')
+      'description' => t('General permission for Display Suite settings pages.'),
     ),
   );
 }
@@ -176,7 +176,8 @@ function ds_features_api() {
  * Function to check if we go on with Display Suite.
  */
 function ds_kill_switch() {
-  if (variable_get('ds_disable', FALSE)) {
+  $config = config('ds.settings');
+  if ($config->get('disable')) {
     return TRUE;
   }
   return FALSE;
@@ -420,6 +421,16 @@ function ds_get_field_value($key, $field, $entity, $entity_type, $bundle, $view_
 }
 
 /**
+ * Implements hook_config_info().
+ */
+function ds_config_info() {
+  $prefixes['ds.settings'] = array(
+    'label' => t('Module name settings'),
+    'group' => t('Configuration'),
+  );
+}
+
+/**
  * Implements hook_field_attach_view_alter().
  */
 function ds_field_attach_view_alter(&$build, $context) {
@@ -521,7 +532,7 @@ function ds_field_attach_view_alter(&$build, $context) {
           '#object' => $entity,
           '#entity_type' => $entity_type,
           '#view_mode' => $view_mode,
-          '#access' => (variable_get('ds_extras_field_permissions', FALSE) && function_exists('ds_extras_ds_field_access')) ? ds_extras_ds_field_access($key, $entity_type) : TRUE,
+          '#access' => (config_get('ds.settings', 'ds_extras_field_permissions') && function_exists('ds_extras_ds_field_access')) ? ds_extras_ds_field_access($key, $entity_type) : TRUE,
           '#items' => array(
             0 => array(
               'value' => $field_value,
@@ -579,7 +590,7 @@ function ds_entity_variables(&$vars) {
     $id = NULL;
     $bundle = $vars['elements']['#bundle'];
     $entity = isset($vars[$entity_type]) ? $vars[$entity_type] : (isset($vars['elements']['#' . $entity_type]) ? $vars['elements']['#' . $entity_type] : NULL);
-    list($id,, $bundle) = entity_extract_ids($entity_type, $entity);
+    list($id, , $bundle) = entity_extract_ids($entity_type, $entity);
 
     if (isset($vars[$entity_type]->preprocess_fields)) {
       foreach ($vars[$entity_type]->preprocess_fields as $field) {
@@ -746,7 +757,12 @@ function ds_entity_variables(&$vars) {
     }
 
     // Let other modules alter the ds array before creating the region variables.
-    $context = array('entity' => isset($vars[$entity_type]) ? $vars[$entity_type] : (isset($vars['elements']['#' . $entity_type]) ? $vars['elements']['#' . $entity_type] : ''), 'entity_type' => $vars['elements']['#entity_type'], 'bundle' => $vars['elements']['#bundle'], 'view_mode' => $vars['elements']['#view_mode']);
+    $context = array(
+      'entity' => isset($vars[$entity_type]) ? $vars[$entity_type] : (isset($vars['elements']['#' . $entity_type]) ? $vars['elements']['#' . $entity_type] : ''),
+      'entity_type' => $vars['elements']['#entity_type'],
+      'bundle' => $vars['elements']['#bundle'],
+      'view_mode' => $vars['elements']['#view_mode'],
+    );
     backdrop_alter('ds_pre_render', $layout_render_array, $context, $vars);
     foreach ($layout_render_array as $region_name => $content) {
       // In case this is a panels layout, add the region to the $content variable.
@@ -767,12 +783,12 @@ function ds_create_entity_context($entity_type, $entity, &$contexts, $context_ar
   ctools_include('context');
   if (empty($context_arguments)) {
     $context_arguments = array(array(
-      'keyword' => $entity_type,
-      'identifier' => backdrop_ucfirst($entity_type) . ' being viewed',
-      'id' => 1,
-      'name' => 'entity_id:' . $entity_type,
-      'settings' => array(),
-    ));
+        'keyword' => $entity_type,
+        'identifier' => backdrop_ucfirst($entity_type) . ' being viewed',
+        'id' => 1,
+        'name' => 'entity_id:' . $entity_type,
+        'settings' => array(),
+      ));
   }
   ctools_context_get_context_from_arguments($context_arguments, $contexts, array($entity));
 }
@@ -868,7 +884,9 @@ function ds_render_ctools_field($field) {
     if (!empty($data->content)) {
       $content = '';
       if ($show_title) {
-        if (empty($title_wrapper)) $title_wrapper = 'div';
+        if (empty($title_wrapper)) {
+          $title_wrapper = 'div';
+        }
         $content .= '<' . check_plain($title_wrapper) . ' class="title">' . $data->title . '</' . check_plain($title_wrapper) . '>';
       }
       if (is_array($data->content)) {
@@ -948,7 +966,7 @@ function ds_render_field($field) {
   }
   elseif (isset($field['properties']['entity_render_key']) && isset($field['entity']->{$field['properties']['entity_render_key']})) {
     if ($field['entity_type'] == 'user' && $field['properties']['entity_render_key'] == 'name') {
-      $output = format_username($field['entity']);
+      $output = user_format_name($field['entity']);
     }
     else {
       $title_field = $field['properties']['entity_render_key'] == 'title' && $field['entity_type'] == 'node';
@@ -1024,11 +1042,11 @@ function ds_render_author_field($field) {
 
   // Users without a user name are anonymous users. These are never linked.
   if (empty($field['entity']->name)) {
-    $output = check_plain(variable_get('anonymous', t('Anonymous')));
+    $output = check_plain(config_get('system.performance', 'anonymous'));
   }
 
   if ($field['formatter'] == 'author') {
-    $output = format_username($field['entity']);
+    $output = user_format_name($field['entity']);
   }
 
   if ($field['formatter'] == 'author_linked') {
@@ -1045,7 +1063,7 @@ function ds_render_markup($field) {
   if (isset($field['entity']->{$field['properties']['key']})) {
     // Check for format, and let's take filtered_html as a sane default.
     $format = isset($field['entity']->{$field['properties']['format']}) ? $field['entity']->{$field['properties']['format']} : 'filtered_html';
-    return check_markup($field['entity']->{$field['properties']['key']}, $format, '', TRUE);;
+    return check_markup($field['entity']->{$field['properties']['key']}, $format, '', TRUE);
   }
 }
 
@@ -1053,6 +1071,7 @@ function ds_render_markup($field) {
  * Return the picture.
  */
 function ds_return_picture($entity) {
+  $config = config('ds.settings');
 
   // Gravatar support.
   if (module_exists('gravatar')) {
@@ -1068,8 +1087,8 @@ function ds_return_picture($entity) {
       return $entity->picture;
     }
   }
-  elseif (variable_get('user_picture_default', '')) {
-    return variable_get('user_picture_default', '');
+  elseif (config_get('system.core', 'user_picture_default')) {
+    return config_get('system.core', 'user_picture_default');
   }
 }
 
@@ -1081,9 +1100,13 @@ function ds_render_user_picture($field) {
 
   if (!empty($picture)) {
     $filepath = (isset($picture->uri)) ? $picture->uri : $picture;
-    $name = format_username($field['entity']);
+    $name = user_format_name($field['entity']);
     $alt = t("@user's picture", array('@user' => $name));
-    $vars = array('path' => $filepath, 'alt' => $alt, 'title' => $alt);
+    $vars = array(
+      'path' => $filepath,
+      'alt' => $alt,
+      'title' => $alt,
+    );
 
     // If the image does not have a valid Backdrop scheme (for eg. HTTP),
     // don't load image styles.
@@ -1135,19 +1158,19 @@ function ds_field_formatter_info() {
   $formatters = array();
   if (module_exists('taxonomy')) {
     $formatters['ds_taxonomy_view_mode'] = array(
-      'label'       => t('Rendered taxonomy term'),
+      'label' => t('Rendered taxonomy term'),
       'description' => t('Display the referenced term in a specific view mode'),
       'field types' => array('taxonomy_term_reference'),
-      'settings'    => array(
+      'settings' => array(
         'taxonomy_term_reference_view_mode' => 'full',
         'use_content_language' => TRUE,
       ),
     );
     $formatters['ds_taxonomy_separator'] = array(
-      'label'       => t('Separated'),
+      'label' => t('Separated'),
       'description' => t('Display the referenced term with a separator.'),
       'field types' => array('taxonomy_term_reference'),
-      'settings'    => array(
+      'settings' => array(
         'taxonomy_term_link' => TRUE,
         'taxonomy_term_separator' => ', ',
       ),
@@ -1155,10 +1178,10 @@ function ds_field_formatter_info() {
 
     if (module_exists('i18n_taxonomy')) {
       $formatters['ds_taxonomy_separator_localized'] = array(
-        'label'       => t('Separated (localized)'),
+        'label' => t('Separated (localized)'),
         'description' => t('Display the referenced term with a separator. Use this with the "localize" translation mode for vocabularies.'),
         'field types' => array('taxonomy_term_reference'),
-        'settings'    => array(
+        'settings' => array(
           'taxonomy_term_link' => TRUE,
           'taxonomy_term_separator' => ', ',
         ),
@@ -1284,6 +1307,10 @@ function ds_contextual_links_view_alter(&$element, $items) {
   }
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function ds_save_layout_settings($layout) {
   if (!empty($layout->entity_type) && !empty($layout->bundle) && !empty($layout->view_mode)) {
     $config = config('ds.layout.' . $layout->entity_type . '.' . $layout->bundle . '.' . $layout->view_mode);
@@ -1311,6 +1338,10 @@ function ds_save_layout_settings($layout) {
   }
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function ds_get_layout_settings($entity_type = NULL, $bundle = NULL, $view_mode = NULL) {
   $entity_info = entity_get_info();
 
@@ -1343,4 +1374,14 @@ function ds_get_layout_settings($entity_type = NULL, $bundle = NULL, $view_mode 
     return array_pop($data);
   }
   return $data;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function ds_autoload_info() {
+  return array(
+    'views_plugin_ds_entity_view' => 'views/views_plugin_ds_entity_view.inc',
+    'views_plugin_ds_fields_view' => 'views/views_plugin_ds_fields_view.inc',
+  );
 }

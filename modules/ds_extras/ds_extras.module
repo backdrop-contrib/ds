@@ -6,9 +6,20 @@
  */
 
 /**
+ * Implements hook_config_info().
+ */
+function ds_extras_config_info() {
+  $prefixes['ds_extras.settings'] = array(
+    'label' => t('Module name settings'),
+    'group' => t('Configuration'),
+  );
+}
+
+/**
  * Implements hook_menu().
  */
 function ds_extras_menu() {
+  $config = config('ds_extras.settings');
   $items = array();
 
   $items['admin/structure/ds/list/extras'] = array(
@@ -21,7 +32,7 @@ function ds_extras_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
-  if (variable_get('ds_extras_switch_field')) {
+  if ($config->get('ds_extras_switch_field')) {
     $items['ds-switch-view-mode'] = array(
       'title' => 'Switch view',
       'description' => 'Switches a view mode inline.',
@@ -32,7 +43,7 @@ function ds_extras_menu() {
     );
   }
 
-  if (variable_get('ds_extras_vd', FALSE) && module_exists('field_ui') && module_exists('views')) {
+  if ($config->get('ds_extras_vd') && module_exists('field_ui') && module_exists('views')) {
     $items['admin/structure/ds/vd'] = array(
       'title' => 'Views displays',
       'description' => 'Manage your views templates.',
@@ -66,7 +77,7 @@ function ds_extras_entity_info() {
  * Implements hook_ds_layout_info_alter().
  */
 function ds_extras_ds_layout_info_alter(&$layouts) {
-  if (variable_get('ds_extras_hidden_region')) {
+  if (config_get('ds_extras.settings', 'ds_extras_hidden_region')) {
     foreach ($layouts as $key => $layout) {
       $layouts[$key]['regions']['ds_hidden'] = t('Hidden');
     }
@@ -77,18 +88,19 @@ function ds_extras_ds_layout_info_alter(&$layouts) {
  * Implements hook_permission().
  */
 function ds_extras_permission() {
+  $config = config('ds_extras.settings');
   $permissions = array();
 
   // Extra check to make sure this doesn't get fired on install.
-  if (variable_get('ds_extras_switch_view_mode', FALSE)) {
+  if ($config->get('ds_extras_switch_view_mode')) {
     foreach (node_type_get_names() as $key => $name) {
       $permissions['ds_switch ' . $key] = array(
-        'title' => t('Switch view modes on :type', array(':type' => $name))
+        'title' => t('Switch view modes on :type', array(':type' => $name)),
       );
     }
   }
 
-  if (variable_get('ds_extras_field_permissions', FALSE)) {
+  if ($config->get('ds_extras_field_permissions')) {
     $entities = entity_get_info();
     foreach ($entities as $entity_type => $info) {
       $fields = ds_get_fields($entity_type);
@@ -107,7 +119,7 @@ function ds_extras_permission() {
  * Implements hook_admin_paths().
  */
 function ds_extras_admin_paths() {
-  if (variable_get('node_admin_theme')) {
+  if (config_get('system.performance', 'node_admin_theme')) {
     return array(
       'node/*/display' => TRUE,
       'user/*/display' => TRUE,
@@ -186,7 +198,7 @@ function ds_extras_field_attach_view_alter(&$build, $context) {
   }
 
   $block_data = &backdrop_static('ds_block_region');
-  $region_blocks = variable_get('ds_extras_region_blocks', array());
+  $region_blocks = config_get('ds_extras.settings', 'ds_extras_region_blocks');
 
   if (empty($region_blocks)) {
     return;
@@ -264,7 +276,7 @@ function ds_extras_process_page_title(&$variables) {
   }
 
   // Support for Views page title, currently only hiding the title.
-  if (variable_get('ds_extras_vd', FALSE) && $view = views_get_page_view()) {
+  if (config_get('ds_extras.settings', 'ds_extras_vd') && $view = views_get_page_view()) {
     if ($layout = ds_get_layout('ds_views', $view->name . '-' . $view->current_display, 'default')) {
       if (isset($layout['settings']['hide_page_title']) && $layout['settings']['hide_page_title'] == 1) {
         $variables['title'] = '';
@@ -365,7 +377,7 @@ function ds_extras_form_node_type_form_alter(&$form, $form_state, $form_id) {
       '#type' => 'checkboxes',
       '#title' => t('View modes'),
       '#options' => $options,
-      '#default_value' => variable_get('ds_extras_view_modes_' . $node_type, array_keys($options)),
+      '#default_value' => config_get('ds_extras.settings', 'ds_extras_view_modes_' . $node_type),
       '#description' => t('Select which view modes will be available to switch to on node edit forms.'),
     );
   }
@@ -382,7 +394,7 @@ function ds_extras_form_node_form_alter(&$form, $form_state, $form_id) {
 
     // Get the view modes.
     $view_modes = ds_extras_get_bundle_view_modes('node', $node->type);
-    $enabled_vm = variable_get('ds_extras_view_modes_' . $node->type, array_keys($view_modes));
+    $enabled_vm = config_get('ds_extras.settings', 'ds_extras_view_modes_' . $node->type);
     $layouts = array();
     $options = array();
     foreach ($view_modes as $key => $label) {
@@ -476,7 +488,7 @@ function ds_extras_switch_view_mode_preview_callback($form, $form_state) {
  */
 function ds_extras_block_info() {
 
-  $region_blocks = variable_get('ds_extras_region_blocks', array());
+  $region_blocks = config_get('ds_extras.settings', 'ds_extras_region_blocks');
 
   if (empty($region_blocks)) {
     return array();
@@ -496,7 +508,7 @@ function ds_extras_block_info() {
  */
 function ds_extras_block_view($delta = '') {
   $data = backdrop_static('ds_block_region');
-  $region_blocks = variable_get('ds_extras_region_blocks', array());
+  $region_blocks = config_get('ds_extras.settings', 'ds_extras_region_blocks');
 
   if (!empty($data[$delta])) {
     $block = array();
@@ -511,7 +523,7 @@ function ds_extras_block_view($delta = '') {
  */
 function ds_extras_ds_layout_region_alter($context, &$region_info) {
 
-  $region_blocks = variable_get('ds_extras_region_blocks', array());
+  $region_blocks = config_get('ds_extras.settings', 'ds_extras_region_blocks');
 
   // Bail out if region_blocks is empty or we are working on default view mode.
   if (empty($region_blocks) || $context['view_mode'] == 'default') {
@@ -539,11 +551,12 @@ function ds_extras_ds_layout_region_alter($context, &$region_info) {
  * Implements hook_field_extra_fields().
  */
 function ds_extras_field_extra_fields() {
+  $config = config('ds_extras.settings');
   $extra = array();
 
   // Register a single field so fields for vd are
   // picked up nicely in the display overview form.
-  if (variable_get('ds_extras_vd')) {
+  if ($config->get('ds_extras_vd')) {
     ctools_include('export');
     $vd_settings = ctools_export_crud_load_all('ds_vd');
     foreach ($vd_settings as $vd) {
@@ -559,8 +572,8 @@ function ds_extras_field_extra_fields() {
     }
   }
 
-  if (variable_get('ds_extras_fields_extra')) {
-    $fields = explode("\n", variable_get('ds_extras_fields_extra_list', FALSE));
+  if ($config->get('ds_extras_fields_extra')) {
+    $fields = explode("\n", $config->get('ds_extras_fields_extra_list'));
     foreach ($fields as $field) {
       $field = trim($field);
       if (!empty($field)) {
@@ -650,7 +663,7 @@ function ds_extras_entity_view_alter(&$build, $entity_type) {
   $layout = ds_get_layout($entity_type, $bundle, $view_mode);
 
   // Page title options.
-  if (variable_get('ds_extras_hide_page_title', FALSE)) {
+  if (config_get('ds_extras.settings', 'ds_extras_hide_page_title')) {
     $page_title = &backdrop_static('ds_page_title');
     if (isset($layout['settings']['hide_page_title']) && $layout['settings']['hide_page_title'] == 1 && ds_extras_is_entity_page_view($build, $entity_type)) {
       $page_title['title'] = '';
@@ -697,9 +710,9 @@ function ds_extras_is_entity_page_view($build, $entity_type) {
       return node_is_page($build['#node']);
       break;
     case 'user':
-    $page_account = menu_get_object('user');
-    return (!empty($page_account) ? $page_account->uid == $build['#account']->uid : FALSE);
-    break;
+      $page_account = menu_get_object('user');
+      return (!empty($page_account) ? $page_account->uid == $build['#account']->uid : FALSE);
+      break;
     case 'taxonomy_term':
       $page_term = menu_get_object('taxonomy_term', 2);
       return (!empty($page_term) ? $page_term->tid == $build['#term']->tid : FALSE);
@@ -728,11 +741,13 @@ function ds_extras_ds_field_theme_functions_info() {
  * Reset all HTML for the field.
  */
 function theme_ds_field_reset($variables) {
+  // TODO: Should this theme ds_field_reset be declared in hook_theme()?
   $output = '';
 
   // Render the label.
   if (!$variables['label_hidden']) {
     $output .= '<div class="label-' . $variables['element']['#label_display'] . '">' . $variables['label'];
+    // TODO This variable was probably removed in Backdrop without replacement.
     if (!variable_get('ft-kill-colon', FALSE)) {
       $output .= ':&nbsp;';
     }
@@ -751,6 +766,7 @@ function theme_ds_field_reset($variables) {
  * Provide minimal HTML for the field.
  */
 function theme_ds_field_minimal($variables) {
+  // TODO: Should this theme ds_field_minimal be declared in hook_theme()?
   $output = '';
   $config = $variables['ds-config'];
   $classes = isset($config['classes']) ? ' ' . $config['classes'] : '';
@@ -771,7 +787,7 @@ function theme_ds_field_minimal($variables) {
   foreach ($variables['items'] as $delta => $item) {
     $output .= backdrop_render($item);
   }
-  $output .="</div>";
+  $output .= "</div>";
 
   return $output;
 }
@@ -780,6 +796,7 @@ function theme_ds_field_minimal($variables) {
  * Custom output all HTML for the field.
  */
 function theme_ds_field_expert($variables) {
+  // TODO: Should this theme ds_field_expert be declared in hook_theme()?
   $output = '';
 
   $config = $variables['ds-config'];
@@ -792,16 +809,24 @@ function theme_ds_field_expert($variables) {
   // Render the label if it's not hidden.
   if (!$variables['label_hidden']) {
     $styled_label = $variables['label'];
-    if (!isset($config['lb-col'])) $styled_label .= ':&nbsp;';
+    if (!isset($config['lb-col'])) {
+      $styled_label .= ':&nbsp;';
+    }
 
     // Style the label it self
     $label_wrapper = isset($config['lb-el']) ? $config['lb-el'] : 'div';
     $class = array('label-' . $variables['element']['#label_display']);
-    if (!empty($config['lb-cl'])) $class[] = $config['lb-cl'];
+    if (!empty($config['lb-cl'])) {
+      $class[] = $config['lb-cl'];
+    }
     $class = !empty($class) ? ' class="' . implode(' ', $class) . '"' : '';
     $attributes = array();
-    if (!empty($config['lb-at'])) $attributes[] = $config['lb-at'];
-    if (!empty($config['lb-def-at'])) $attributes[] = $variables['title_attributes'];
+    if (!empty($config['lb-at'])) {
+      $attributes[] = $config['lb-at'];
+    }
+    if (!empty($config['lb-def-at'])) {
+      $attributes[] = $variables['title_attributes'];
+    }
     $attributes = (!empty($attributes)) ? ' ' . implode(' ', $attributes) : '';
     $styled_label = '<' . $label_wrapper . $class . $attributes . '>' . $styled_label . '</' . $label_wrapper . '>';
 
@@ -819,8 +844,12 @@ function theme_ds_field_expert($variables) {
   if (isset($config['fis'])) {
     $class = (!empty($config['fis-cl'])) ? ' class="' . token_replace($config['fis-cl'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE)) . '"' : '';
     $attributes = array();
-    if (!empty($config['fis-at'])) $attributes[] = token_replace($config['fis-at'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));;
-    if (!empty($config['fis-def-at'])) $attributes[] = $variables['content_attributes'];
+    if (!empty($config['fis-at'])) {
+      $attributes[] = token_replace($config['fis-at'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));
+    }
+    if (!empty($config['fis-def-at'])) {
+      $attributes[] = $variables['content_attributes'];
+    }
     $attributes = (!empty($attributes)) ? ' ' . implode(' ', $attributes) : '';
     $output .= '<' . $config['fis-el'] . $class . $attributes . '>';
   }
@@ -838,13 +867,13 @@ function theme_ds_field_expert($variables) {
       if (!empty($config['fi-cl'])) {
         $class[] = $config['fi-cl'];
       }
-      if(!empty($config['fi-first-last']) && $item_index == 0) {
+      if (!empty($config['fi-first-last']) && $item_index == 0) {
         $class[] = "first";
       }
-      if(!empty($config['fi-first-last']) && $item_index == $item_count - 1) {
+      if (!empty($config['fi-first-last']) && $item_index == $item_count - 1) {
         $class[] = "last";
       }
-      $class = !empty($class) ? ' class="'. token_replace(implode(' ', $class), array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE)) .'"' : '';
+      $class = !empty($class) ? ' class="' . token_replace(implode(' ', $class), array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE)) . '"' : '';
       $attributes = array();
       if (!empty($config['fi-at'])) {
         $attributes[] = token_replace($config['fi-at'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));
@@ -853,7 +882,7 @@ function theme_ds_field_expert($variables) {
         $attributes[] = $variables['item_attributes'][$delta];
       }
       $attributes = (!empty($attributes)) ? ' ' . implode(' ', $attributes) : '';
-      $output .= '<' . $config['fi-el'] . $class . $attributes .'>';
+      $output .= '<' . $config['fi-el'] . $class . $attributes . '>';
     }
 
     // Render field content.
@@ -874,12 +903,20 @@ function theme_ds_field_expert($variables) {
   // Outer wrapper.
   if (isset($config['ow'])) {
     $class = array();
-    if (!empty($config['ow-cl'])) $class[] = token_replace($config['ow-cl'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));
-    if (!empty($config['ow-def-cl'])) $class[] = $variables['classes'];
+    if (!empty($config['ow-cl'])) {
+      $class[] = token_replace($config['ow-cl'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));
+    }
+    if (!empty($config['ow-def-cl'])) {
+      $class[] = $variables['classes'];
+    }
     $class = (!empty($class)) ? ' class="' . implode(' ', $class) . '"' : '';
     $attributes = array();
-    if (!empty($config['ow-at'])) $attributes[] = token_replace($config['ow-at'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));;
-    if (!empty($config['ow-def-at'])) $attributes[] = $variables['attributes'];
+    if (!empty($config['ow-at'])) {
+      $attributes[] = token_replace($config['ow-at'], array($variables['element']['#entity_type'] => $variables['element']['#object']), array('clear' => TRUE));
+    }
+    if (!empty($config['ow-def-at'])) {
+      $attributes[] = $variables['attributes'];
+    }
     $attributes = (!empty($attributes)) ? ' ' . implode(' ', $attributes) : '';
     $output = '<' . $config['ow-el'] . $class . $attributes . '>' . $output . '</' . $config['ow-el'] . '>';
   }
@@ -898,12 +935,13 @@ function theme_ds_field_expert($variables) {
 function ds_extras_ds_field_settings_alter(&$field_settings, $form, &$form_state) {
 
   $fields = $form_state['values']['fields'];
+  // TODO This variable was probably removed in Backdrop without replacement.
   $default_field_function = variable_get('ft-default', 'theme_field');
 
   $wrappers = array(
     'ow' => t('Wrapper'),
     'fis' => t('Field items'),
-    'fi' => t('Field item')
+    'fi' => t('Field item'),
   );
 
   foreach ($fields as $key => $field) {
@@ -946,10 +984,10 @@ function ds_extras_ds_field_settings_alter(&$field_settings, $form, &$form_state
         $field_settings[$key]['formatter_settings']['ft']['lb-cl'] = check_plain($values['lb-cl']);
       }
       if (!(empty($values['lb-at'])) && $function == 'theme_ds_field_expert') {
-       $field_settings[$key]['formatter_settings']['ft']['lb-at'] = filter_xss($values['lb-at']);
+        $field_settings[$key]['formatter_settings']['ft']['lb-at'] = filter_xss($values['lb-at']);
       }
       if (!(empty($values['lb-def-at'])) && $function == 'theme_ds_field_expert') {
-       $field_settings[$key]['formatter_settings']['ft']['lb-def-at'] = TRUE;
+        $field_settings[$key]['formatter_settings']['ft']['lb-def-at'] = TRUE;
       }
       if (!(empty($values['lb-col']))) {
         $field_settings[$key]['formatter_settings']['ft']['lb-col'] = TRUE;
@@ -966,7 +1004,7 @@ function ds_extras_ds_field_settings_alter(&$field_settings, $form, &$form_state
         $field_settings[$key]['formatter_settings']['ft']['lbw-cl'] = check_plain($values['lbw-cl']);
       }
       if (!(empty($values['lbw-at'])) && $function == 'theme_ds_field_expert') {
-       $field_settings[$key]['formatter_settings']['ft']['lbw-at'] = filter_xss($values['lbw-at']);
+        $field_settings[$key]['formatter_settings']['ft']['lbw-at'] = filter_xss($values['lbw-at']);
       }
     }
 
@@ -1080,6 +1118,7 @@ function ds_extras_preprocess_field(&$variables) {
   }
   // Use Display Suite Extras Default theming function.
   elseif (!isset($config['func']) || empty($config['func'])) {
+    // TODO This variable was probably removed in Backdrop without replacement.
     $field_theme_function = variable_get('ft-default', 'theme_field');
     if ($field_theme_function != 'theme_field') {
       $variables['theme_hook_suggestions'] = array();

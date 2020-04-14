@@ -11,7 +11,7 @@
 function _ds_extras_menu_alter(&$items) {
 
   // Switch view mode.
-  if (variable_get('ds_extras_switch_view_mode', FALSE)) {
+  if (config_get('ds_extras.settings', 'ds_extras_switch_view_mode')) {
 
     // Check if page manager is overriding.
     $skip_node_override = FALSE;
@@ -36,7 +36,7 @@ function _ds_extras_menu_alter(&$items) {
  */
 function _ds_extras_entity_info() {
 
-  if (!variable_get('ds_extras_vd', FALSE)) {
+  if (!config_get('ds_extras.settings', 'ds_extras_vd')) {
     return;
   }
 
@@ -71,19 +71,20 @@ function _ds_extras_entity_info() {
  * Implements hook_theme_registry_alter().
  */
 function _ds_extras_theme_registry_alter(&$theme_registry) {
+  $config = config('ds_extras.settings');
 
   // Add views preprocess layout.
-  if (variable_get('ds_extras_vd', FALSE)) {
+  if ($config->get('ds_extras_vd')) {
     $theme_registry['views_view']['preprocess functions'][] = 'ds_extras_preprocess_view_layout';
   }
 
   // Add process page function.
-  if (variable_get('ds_extras_hide_page_title', FALSE)) {
+  if ($config->get('ds_extras_hide_page_title')) {
     $theme_registry['page']['process functions'][] = 'ds_extras_process_page_title';
   }
 
   // Remove ds_preprocess_field in case field templates is not enabled.
-  if (!variable_get('ds_extras_field_template', FALSE) && isset($theme_registry['field']['preprocess functions'])) {
+  if (!$config->get('ds_extras_field_template') && isset($theme_registry['field']['preprocess functions'])) {
     $key = array_search('ds_extras_preprocess_field', $theme_registry['field']['preprocess functions']);
     if (!empty($key)) {
       unset($theme_registry['field']['preprocess functions'][$key]);
@@ -95,6 +96,7 @@ function _ds_extras_theme_registry_alter(&$theme_registry) {
  * Implements hook_module_implements_alter().
  */
 function _ds_extras_module_implements_alter(&$implementations, $hook) {
+  $config = config('ds_extras.settings');
 
   // Because it's possible to turn on/off features for DS extras,
   // we'll unset hooks here if necessary which otherwhise do nothing at all.
@@ -106,7 +108,7 @@ function _ds_extras_module_implements_alter(&$implementations, $hook) {
     'form_field_ui_field_edit_form_alter',
     'theme',
   );
-  if (!variable_get('ds_extras_field_template', FALSE) && in_array($hook, $ft_hooks)) {
+  if (!$config->get('ds_extras_field_template') && in_array($hook, $ft_hooks)) {
     unset($implementations['ds_extras']);
   }
 
@@ -115,9 +117,9 @@ function _ds_extras_module_implements_alter(&$implementations, $hook) {
     'ds_layout_region_alter',
     'field_attach_view_alter',
     'block_info',
-    'block_view'
+    'block_view',
   );
-  if (!variable_get('ds_extras_region_to_block', FALSE) && in_array($hook, $region_hooks)) {
+  if (!$config->get('ds_extras_region_to_block') && in_array($hook, $region_hooks)) {
     unset($implementations['ds_extras']);
   }
 
@@ -125,7 +127,7 @@ function _ds_extras_module_implements_alter(&$implementations, $hook) {
   $switch_hooks = array(
     'form_node_form_alter',
   );
-  if (!variable_get('ds_extras_switch_view_mode', FALSE) && in_array($hook, $switch_hooks)) {
+  if (!$config->get('ds_extras_switch_view_mode') && in_array($hook, $switch_hooks)) {
     unset($implementations['ds_extras']);
   }
 
@@ -135,7 +137,7 @@ function _ds_extras_module_implements_alter(&$implementations, $hook) {
     'ctools_plugin_api',
     'ds_fields_ui_alter',
   );
-  if (!variable_get('ds_extras_vd', FALSE) && in_array($hook, $vd_hooks)) {
+  if (!$config->get('ds_extras_vd') && in_array($hook, $vd_hooks)) {
     unset($implementations['ds_extras']);
   }
 }

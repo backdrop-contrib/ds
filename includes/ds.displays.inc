@@ -53,11 +53,14 @@ function ds_layout_list() {
 
       if (!empty($rows)) {
         $variables = array(
-          'header' => array(array('data' => $entity['label']), array('data' => t('operations'), 'class' => 'ds-display-list-options')),
+          'header' => array(array('data' => $entity['label']), array(
+              'data' => t('operations'),
+              'class' => 'ds-display-list-options',
+            )),
           'rows' => $rows,
         );
         $build['list_' . $entity_type] = array(
-          '#markup' => theme('table', $variables)
+          '#markup' => theme('table', $variables),
         );
 
         $entity_rows = array();
@@ -74,6 +77,7 @@ function ds_layout_list() {
  * Emergency page.
  */
 function ds_emergency() {
+  $config = config('ds.settings');
 
   $form['ds_fields_error'] = array(
     '#type' => 'fieldset',
@@ -84,7 +88,7 @@ function ds_emergency() {
     '#type' => 'checkbox',
     '#title' => t('Disable attaching fields via Display Suite'),
     '#description' => t('In case you get an error after configuring a layout printing a message like "Fatal error: Unsupported operand types", you can temporarily disable adding fields from DS by toggling this checkbox. You probably are trying to render an node inside a node, for instance through a view, which is simply not possible. See <a href="http://drupal.org/node/1264386">http://drupal.org/node/1264386</a>.'),
-    '#default_value' => variable_get('ds_disable', FALSE),
+    '#default_value' => $config->get('ds_disable'),
     '#weight' => 0,
   );
 
@@ -96,7 +100,7 @@ function ds_emergency() {
   );
 
   if (module_exists('ds_extras')) {
-    $region_blocks = variable_get('ds_extras_region_blocks', array());
+    $region_blocks = $config->get('ds_extras_region_blocks');
     if (!empty($region_blocks)) {
 
       $region_blocks_options = array();
@@ -131,7 +135,7 @@ function ds_emergency() {
  * Submit callback of fields error form.
  */
 function ds_emergency_fields_attach($form, &$form_state) {
-  variable_set('ds_disable', $form_state['values']['ds_disable']);
+  config_set('ds.settings', 'ds_disable', $form_state['values']['ds_disable']);
   backdrop_set_message(t('The configuration options have been saved.'));
 }
 
@@ -141,7 +145,7 @@ function ds_emergency_fields_attach($form, &$form_state) {
 function ds_emergency_region_to_block_submit($form, &$form_state) {
   if (isset($form_state['values']['remove_block_region'])) {
     $variable_set = FALSE;
-    $region_blocks = variable_get('ds_extras_region_blocks', array());
+    $region_blocks = config_get('ds.settings', 'ds_extras_region_blocks');
     $remove = $form_state['values']['remove_block_region'];
     foreach ($remove as $key => $value) {
       if ($value !== 0 && $key == $value) {
@@ -158,7 +162,7 @@ function ds_emergency_region_to_block_submit($form, &$form_state) {
 
     if ($variable_set) {
       backdrop_set_message(t('Block regions were removed.'));
-      variable_set('ds_extras_region_blocks', $region_blocks);
+      config_set('ds.settings', 'ds_extras_region_blocks', $region_blocks);
     }
   }
   else {

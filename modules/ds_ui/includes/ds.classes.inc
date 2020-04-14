@@ -10,19 +10,20 @@
  */
 function ds_classes_form($form, $form_state) {
   $config = config('ds.settings');
+  $form['#config'] = 'ds_ui.settings';
   $form['#config'] = 'ds.settings';
 
   $form['classes_regions'] = array(
     '#type' => 'textarea',
     '#title' => t('CSS classes for regions'),
     '#default_value' => $config->get('classes_regions'),
-    '#description' => t('Configure CSS classes which you can add to regions on the "manage display" screens. Add multiple CSS classes line by line.<br />If you want to have a friendly name, separate class and friendly name by |, but this is not required. eg:<br /><em>class_name_1<br />class_name_2|Friendly name<br />class_name_3</em>')
+    '#description' => t('Configure CSS classes which you can add to regions on the "manage display" screens. Add multiple CSS classes line by line.<br />If you want to have a friendly name, separate class and friendly name by |, but this is not required. eg:<br /><em>class_name_1<br />class_name_2|Friendly name<br />class_name_3</em>'),
   );
 
   if (module_exists('token')) {
     $tokens_mapping = token_get_entity_mapping();
     $tokens_list = array();
-    foreach($tokens_mapping as $token_map => $entity_map) {
+    foreach ($tokens_mapping as $token_map => $entity_map) {
       $tokens_list[] = $token_map;
     }
     $form['token'] = array(
@@ -39,7 +40,7 @@ function ds_classes_form($form, $form_state) {
       '#type' => 'textarea',
       '#title' => t('CSS classes for fields'),
       '#default_value' => $config->get('classes_fields'),
-      '#description' => t('Configure CSS classes which you can add to fields on the "manage display" screens. Add multiple CSS classes line by line.<br />If you want to have a friendly name, separate class and friendly name by |, but this is not required. eg:<br /><em>class_name_1<br />class_name_2|Friendly name<br />class_name_3</em>')
+      '#description' => t('Configure CSS classes which you can add to fields on the "manage display" screens. Add multiple CSS classes line by line.<br />If you want to have a friendly name, separate class and friendly name by |, but this is not required. eg:<br /><em>class_name_1<br />class_name_2|Friendly name<br />class_name_3</em>'),
     );
   }
 

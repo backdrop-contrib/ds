@@ -22,6 +22,10 @@ class views_plugin_ds_fields_view extends views_plugin_row {
 
   // Return base_field based on base_table. It might not be
   // the cleanest solution, it's the fastest though.
+  /**
+   * @todo Please document this function.
+   * @see http://drupal.org/node/1354
+   */
   function ds_views_3_support() {
     if (strpos($this->base_table, 'eck_') === 0) {
       // Base tables of entities created by entity construction kit (eck)
