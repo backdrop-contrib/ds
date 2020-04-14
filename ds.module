@@ -1312,48 +1312,35 @@ function ds_save_layout_settings($layout) {
 }
 
 function ds_get_layout_settings($entity_type = NULL, $bundle = NULL, $view_mode = NULL) {
-  if (!empty($entity_type) && !empty($bundle) && !empty($view_mode)) {
-    $config = config('ds.layout.' . $entity_type . '.' . $bundle . '.' . $view_mode);
-    $layout = new stdClass();
-    if (!$config->isNew()) {
-      $layout->entity_type = $config->get('entity_type');
-      $layout->bundle = $config->get('bundle');
-      $layout->view_mode = $config->get('view_mode');
-      $layout->layout = $config->get('layout');
-      $layout->settings = $config->get('settings');
-      $layout->fields = $config->get('fields');
+  $entity_info = entity_get_info();
+
+  $prefix = 'ds.layout';
+  if (!empty($entity_type) && isset($entity_info[$entity_type])) {
+    $prefix .=  '.' . $entity_type;
+    if (!empty($bundle) && isset($entity_info[$entity_type]['bundles'][$bundle])) {
+      $prefix .= '.' . $bundle;
+      if (!empty($view_mode) && isset($entity_info[$entity_type]['view modes'][$view_mode])) {
+        $prefix .= '.' . $view_mode;
+      }
     }
-    return $layout;
   }
 
-  $entity_info = entity_get_info();
+  $config_names = config_get_names_with_prefix($prefix);
   $data = array();
+  foreach ($config_names as $config_name) {
+    $config = config($config_name);
+    $layout = new stdClass();
+    $layout->entity_type = $config->get('entity_type');
+    $layout->bundle = $config->get('bundle');
+    $layout->view_mode = $config->get('view_mode');
+    $layout->layout = $config->get('layout');
+    $layout->settings = $config->get('settings');
+    $layout->fields = $config->get('fields');
+    $data[$layout->entity_type . '.' . $layout->bundle . '.' . $layout->view_mode] = $layout;
+  }
 
-  foreach ($entity_info as $entity_key => $entity) {
-    if (!empty($entity_type) && $entity_key !== $entity_type) {
-      continue;
-    }
-    foreach (array_keys($entity['bundles']) as $bundle_key) {
-      if (!empty($bundle) && $bundle !== $bundle_key) {
-        continue;
-      }
-      foreach (array_merge(array('default'), array_keys($entity['view modes'])) as $view_mode_key) {
-        if (!empty($view_mode) && $view_mode !== $view_mode_key) {
-          continue;
-        }
-        $config = config('ds.layout.' . $entity_key . '.' . $bundle_key . '.' . $view_mode_key);
-        if (!$config->isNew()) {
-          $layout = new stdClass();
-          $layout->entity_type = $config->get('entity_type');
-          $layout->bundle = $config->get('bundle');
-          $layout->view_mode = $config->get('view_mode');
-          $layout->layout = $config->get('layout');
-          $layout->settings = $config->get('settings');
-          $layout->fields = $config->get('fields');
-          $data[$entity_key . '.' . $bundle_key . '.' . $view_mode_key] = $layout;
-        }
-      }
-    }
+  if (!empty($entity_type) && !empty($bundle) && !empty($view_mode)) {
+    return array_pop($data);
   }
   return $data;
 }
