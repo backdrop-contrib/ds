@@ -11,25 +11,22 @@
 function ds_custom_fields_list() {
   $output = '';
 
-  ctools_include('export');
-  $custom_fields = ctools_export_crud_load_all('ds_fields');
-  if (!empty($custom_fields)) {
+  $config_names = config_get_names_with_prefix('ds.field.');
 
+  if (!empty($config_names)) {
     $rows = array();
-    foreach ($custom_fields as $field_key => $field_value) {
-      $row = array();
-      $row[] = check_plain($field_value->label);
-      $row[] = ds_field_human_name($field_value->field_type);
-      $row[] = $field_key;
-      $row[] = ucwords(str_replace('_', ' ', implode(', ', $field_value->entities)));
-      $operations = l(t('Edit'), 'admin/structure/ds/fields/manage/' . $field_key, array('alias' => TRUE));
+    foreach($config_names as $config_name) {
+      $config = config($config_name);
 
-      if ($field_value->export_type == 3) {
-        $operations .= ' - ' . l(t('Revert'), 'admin/structure/ds/fields/revert/' . $field_key, array('alias' => TRUE));
-      }
-      elseif ($field_value->export_type == 1) {
-        $operations .= ' - ' . l(t('Delete'), 'admin/structure/ds/fields/delete/' . $field_key, array('alias' => TRUE));
-      }
+      $row = array();
+      $row[] = check_plain($config->get('label'));
+      $row[] = ds_field_human_name($config->get('field_type'));
+      $row[] = $config->get('field');
+      $row[] = ucwords(str_replace('_', ' ', implode(', ', $config->get('entities'))));
+
+      $operations = l(t('Edit'), 'admin/structure/ds/fields/manage/' . $config->get('field'), array('alias' => TRUE));
+      $operations .= ' - ' . l(t('Delete'), 'admin/structure/ds/fields/delete/' . $config->get('field'), array('alias' => TRUE));
+
       $row[] = $operations;
       $rows[] = $row;
     }
@@ -82,11 +79,10 @@ function ds_field_human_name($type) {
  */
 function ds_custom_manage($field_key = '') {
   $redirect = '';
-  ctools_include('export');
-  $custom_fields = ctools_export_crud_load_all('ds_fields');
-  if (isset($custom_fields[$field_key])) {
-    $field = $custom_fields[$field_key];
-    switch ($field->field_type) {
+
+  $config = config('ds.field.' . $field_key);
+  if (!$config->isNew()) {
+    switch ($config->get('field_type')) {
       case DS_FIELD_TYPE_CODE:
         $redirect = 'admin/structure/ds/fields/manage_custom/' . $field_key;
         break;
@@ -102,12 +98,11 @@ function ds_custom_manage($field_key = '') {
       case DS_FIELD_TYPE_PREPROCESS:
         $redirect = 'admin/structure/ds/fields/manage_preprocess/' . $field_key;
         break;
-
-      default:
-        backdrop_set_message(t('Field not found'));
-        $redirect = 'admin/structure/ds/fields';
-        break;
     }
+  }
+  else {
+    backdrop_set_message(t('Field not found'));
+    $redirect = 'admin/structure/ds/fields';
   }
 
   backdrop_goto($redirect);
@@ -117,27 +112,22 @@ function ds_custom_manage($field_key = '') {
  * Shared form for all fields.
  */
 function ds_shared_form(&$form, $field) {
-  ctools_include('export');
-  $custom_fields = ctools_export_crud_load_all('ds_fields');
-  if (isset($custom_fields[$field])) {
-    $field = $custom_fields[$field];
-    if (!isset($field->ui_limit)) {
-      $field->ui_limit = '';
-    }
-  }
-  else {
-    $field = new stdClass;
-    $field->label = '';
-    $field->field = '';
-    $field->ui_limit = '';
-    $field->entities = array();
-    $field->properties = array();
+  $config = config('ds.field.' . $field);
+
+  $custom_fields = array();
+
+  if ($config->isNew()) {
+    $config->set('label', '');
+    $config->set('field', '');
+    $config->set('ui_limit', '');
+    $config->set('entities', array());
+    $config->set('properties', array());
   }
 
   $form['name'] = array(
     '#title' => t('Label'),
     '#type' => 'textfield',
-    '#default_value' => $field->label,
+    '#default_value' => $config->get('label'),
     '#description' => t('The human-readable label of the field.'),
     '#maxlength' => 128,
     '#required' => TRUE,
@@ -146,10 +136,10 @@ function ds_shared_form(&$form, $field) {
 
   $form['field'] = array(
     '#type' => 'machine_name',
-    '#default_value' => $field->field,
+    '#default_value' => $config->get('field'),
     '#maxlength' => 32,
     '#description' => t('The machine-readable name of this field. This name must contain only lowercase letters and underscores. This name must be unique.'),
-    '#disabled' => !empty($field->field),
+    '#disabled' => !empty($config->get('field')),
     '#machine_name' => array(
       'exists' => 'ds_field_unique',
     ),
@@ -168,14 +158,14 @@ function ds_shared_form(&$form, $field) {
     '#type' => 'checkboxes',
     '#required' => TRUE,
     '#options' => $entity_options,
-    '#default_value' => $field->entities,
+    '#default_value' => $config->get('entities'),
   );
 
   $form['ui_limit'] = array(
     '#title' => t('Limit field'),
     '#description' => t('Limit this field on field UI per bundles and/or view modes. The values are in the form of $bundle|$view_mode, where $view_mode may be either a view mode set to use custom settings, or \'default\'. You may use * to select all, e.g article|*, *|full or *|*. Enter one value per line.'),
     '#type' => 'textarea',
-    '#default_value' => $field->ui_limit,
+    '#default_value' => $config->get('ui_limit'),
     '#element_validate' => array('ds_ui_limit_validate'),
   );
 
@@ -189,6 +179,7 @@ function ds_shared_form(&$form, $field) {
   $form['#validate'][] = 'ds_shared_form_validate';
   $form['#submit'][] = 'ds_shared_form_submit';
 
+  dpm($form);
   return $field;
 }
 
@@ -263,10 +254,10 @@ function _ds_check_existing_ui_limit($entity_types, $bundle, $view_mode) {
  * Return whether a field machine name is unique.
  */
 function ds_field_unique($name) {
-  ctools_include('export');
-  $custom_fields = ctools_export_crud_load_all('ds_fields');
-  $value = strtr($name, array('-' => '_'));
-  return isset($custom_fields[$value]) ? TRUE : FALSE;
+  dpm($name);
+  $config = config('ds.field.' . $name);
+  dpm($config->isNew());
+  return !$config->isNew();
 }
 
 /**
@@ -295,13 +286,17 @@ function ds_shared_form_validate($form, &$form_state) {
 function ds_shared_form_submit($form, &$form_state) {
   $field = $form_state['field'];
 
-  // Delete previous field configuration.
-  db_delete('ds_fields')
-    ->condition('field', $field->field)
-    ->execute();
+  $config = config('ds.field.' . $field->field);
 
-  // Save field and clear ds_fields.
-  backdrop_write_record('ds_fields', $field);
+  $config->set('field', $field->field);
+  $config->set('label', $field->label);
+  $config->set('field_type', $field->field_type);
+  $config->set('entities', $field->entities);
+  $config->set('ui_limit', $field->ui_limit);
+  $config->set('properties', $field->properties);
+
+  $config->save();
+
   cache_clear_all('ds_fields:', 'cache', TRUE);
 
   // Redirect.
@@ -497,13 +492,11 @@ function ds_revert_field_confirm($form, &$form_state, $field = '') {
  * Confirmation delete or revert form.
  */
 function ds_remove_fields_form($form, &$form_state, $field = '', $action = 'delete') {
-  ctools_include('export');
-  $custom_fields = ctools_export_crud_load_all('ds_fields');
-  if (isset($custom_fields[$field])) {
-    $field = $custom_fields[$field];
+  $config = config('ds.field.' . $field);
+  if (!$config->isNew()) {
     $form['#ds_field'] = $field;
     return confirm_form($form,
-      t('Are you sure you want to ' . $action . ' %field?', array('%field' => $field->label)),
+      t('Are you sure you want to ' . $action . ' %field?', array('%field' => $config->get('label'))),
       'admin/structure/ds/fields',
       t('This action cannot be undone.'),
       t(backdrop_ucfirst($action)),
@@ -524,23 +517,11 @@ function ds_delete_field_confirm_submit($form, &$form_state) {
 }
 
 /**
- * Submit callback: confirmed revert submit.
- */
-function ds_revert_field_confirm_submit($form, &$form_state) {
-  ds_remove_field_confirm_submit($form, $form_state, 'reverted');
-}
-
-/**
  * Confirmed field delete or revert submit callback.
  */
 function ds_remove_field_confirm_submit($form, &$form_state, $action = 'deleted') {
-
-  $field = $form['#ds_field'];
-
-  // Remove field.
-  db_delete('ds_fields')
-    ->condition('field', $field->field)
-    ->execute();
+  $config = config('ds.field.' . $form['#ds_field']);
+  $config->delete();
 
   // Clear cache.
   cache_clear_all('ds_fields:', 'cache', TRUE);
