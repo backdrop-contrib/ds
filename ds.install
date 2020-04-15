@@ -13,19 +13,14 @@ function ds_install() {
     ->fields(array('weight' => 1))
     ->condition('name', 'ds')
     ->execute();
-  // Dynamically generated variable data was detected on the following lines.
-  // /ds/includes/ds.displays.inc line 144
 }
 
 /**
  * Implements hook_uninstall().
  */
 function ds_uninstall() {
-  config_clear('ds.settings', 'ds_classes_regions');
-  config_clear('ds.settings', 'ds_disable');
-  config_clear('ds.settings', 'ds_extras_region_blocks');
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_del('menu_rebuild_needed');
+  config_clear('ds.settings', 'classes_regions');
+  config_clear('ds.settings', 'disable');
 }
 
 /**
@@ -266,16 +261,6 @@ function ds_schema() {
   return $schema;
 }
 
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function ds_update_7201() { }
-
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function ds_update_7202() { }
-
-
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function ds_update_7203() { }
-
 /**
  * Implements hook_update_last_removed().
  */
@@ -288,18 +273,9 @@ function ds_update_last_removed() {
  */
 function ds_update_1000() {
   $config = config('ds.settings');
-  $config->set('ds_extras_field_permissions', update_variable_get('ds_extras_field_permissions', 'FALSE'));
-  $config->set('ds_extras_vd', update_variable_get('ds_extras_vd', 'FALSE'));
-  $config->set('ds_disable', update_variable_get('ds_disable', 'FALSE'));
-  $config->set('ds_extras_region_blocks', update_variable_get('ds_extras_region_blocks', 'dynamic value in file /ds/includes/ds.displays.inc line 144'));
-  $config->set('ds_layout_attributes_merge', update_variable_get('ds_layout_attributes_merge', 'TRUE'));
-  $config->set('ds_extras_field_template', update_variable_get('ds_extras_field_template', 'FALSE'));
-  $config->set('ds_extras_switch_view_mode', update_variable_get('ds_extras_switch_view_mode', 'FALSE'));
-  update_variable_del('ds_extras_field_permissions');
-  update_variable_del('ds_extras_vd');
+  $config->set('disable', update_variable_get('ds_disable', FALSE));
+  $config->set('layout_attributes_merge', update_variable_get('ds_layout_attributes_merge', TRUE));
+  $config->save();
   update_variable_del('ds_disable');
-  update_variable_del('ds_extras_region_blocks');
   update_variable_del('ds_layout_attributes_merge');
-  update_variable_del('ds_extras_field_template');
-  update_variable_del('ds_extras_switch_view_mode');
 }

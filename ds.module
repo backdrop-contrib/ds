@@ -532,7 +532,7 @@ function ds_field_attach_view_alter(&$build, $context) {
           '#object' => $entity,
           '#entity_type' => $entity_type,
           '#view_mode' => $view_mode,
-          '#access' => (config_get('ds.settings', 'ds_extras_field_permissions') && function_exists('ds_extras_ds_field_access')) ? ds_extras_ds_field_access($key, $entity_type) : TRUE,
+          '#access' => (config_get('ds_extras.settings', 'field_permissions') && function_exists('ds_extras_ds_field_access')) ? ds_extras_ds_field_access($key, $entity_type) : TRUE,
           '#items' => array(
             0 => array(
               'value' => $field_value,
@@ -1042,7 +1042,7 @@ function ds_render_author_field($field) {
 
   // Users without a user name are anonymous users. These are never linked.
   if (empty($field['entity']->name)) {
-    $output = check_plain(config_get('system.performance', 'anonymous'));
+    $output = check_plain(config_get('system.core', 'anonymous'));
   }
 
   if ($field['formatter'] == 'author') {
@@ -1308,8 +1308,10 @@ function ds_contextual_links_view_alter(&$element, $items) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Contains logic for saving layouts.
+ *
+ * @param object $layout
+ *   The layout that is being saved.
  */
 function ds_save_layout_settings($layout) {
   if (!empty($layout->entity_type) && !empty($layout->bundle) && !empty($layout->view_mode)) {
@@ -1339,8 +1341,20 @@ function ds_save_layout_settings($layout) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Contains wrapper logic for the loading of layouts from config.
+ *
+ * This function performs some transformation of the data to maintain
+ * compatibility with the rest of the module which is expecting ctools
+ * exportable objects.
+ *
+ * @param type $entity_type
+ *   The entity type to load layouts for.
+ * @param type $bundle
+ *   The entity bundle to load layouts for.
+ * @param type $view_mode
+ *  The view mode to load layouts for.
+ *
+ * @return mixed Returns a layout object if all parameters are set, or an array of layouts otherwise.
  */
 function ds_get_layout_settings($entity_type = NULL, $bundle = NULL, $view_mode = NULL) {
   $entity_info = entity_get_info();
@@ -1350,13 +1364,14 @@ function ds_get_layout_settings($entity_type = NULL, $bundle = NULL, $view_mode 
     $prefix .=  '.' . $entity_type;
     if (!empty($bundle) && isset($entity_info[$entity_type]['bundles'][$bundle])) {
       $prefix .= '.' . $bundle;
-      if (!empty($view_mode) && isset($entity_info[$entity_type]['view modes'][$view_mode])) {
+      if (!empty($view_mode) && (isset($entity_info[$entity_type]['view modes'][$view_mode]) || $view_mode === 'default')) {
         $prefix .= '.' . $view_mode;
       }
     }
   }
 
   $config_names = config_get_names_with_prefix($prefix);
+
   $data = array();
   foreach ($config_names as $config_name) {
     $config = config($config_name);
@@ -1370,6 +1385,7 @@ function ds_get_layout_settings($entity_type = NULL, $bundle = NULL, $view_mode 
     $data[$layout->entity_type . '.' . $layout->bundle . '.' . $layout->view_mode] = $layout;
   }
 
+  // If all three variables are set, then return just one layout.
   if (!empty($entity_type) && !empty($bundle) && !empty($view_mode)) {
     return array_pop($data);
   }

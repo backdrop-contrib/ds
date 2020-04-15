@@ -857,8 +857,8 @@ function ds_field_ui_fields_save($form, &$form_state) {
   ds_save_layout_settings($record);
 
   // Clear the ds_fields cache.
-  cache_clear_all('ds_fields:', 'cache', TRUE);
-  cache_clear_all('ds_field_settings', 'cache');
+  $cache = cache();
+  $cache->deletePrefix('ds_field');
 }
 
 /**
@@ -1046,7 +1046,7 @@ function ds_field_settings_summary($field, $form_state, $form, $view_mode) {
     $summary = module_invoke($field['module'], 'ds_field_format_summary', $field);
   }
 
-  if (module_exists('ds_extras') && config_get('ds.settings', 'ds_extras_field_template')) {
+  if (module_exists('ds_extras') && config_get('ds_extras.settings', 'field_template')) {
     module_load_include('inc', 'ds_extras', 'includes/ds_extras.admin');
 
     // Field template summary
@@ -1110,7 +1110,7 @@ function ds_field_settings_form($field, &$form_state, $entity_form, $view_mode) 
   $form = module_invoke($field['module'], 'ds_field_settings_form', $field);
 
   // Add field template settings to every field if enabled.
-  if (module_exists('ds_extras') && config_get('ds.settings', 'ds_extras_field_template')) {
+  if (module_exists('ds_extras') && config_get('ds_extras.settings', 'field_template')) {
     $context = array(
       'instance' => array(
         'entity_type' => $field['entity_type'],
@@ -1562,30 +1562,6 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
     $form['#ds_layout'] = $layout;
   }
 
-
-  // The layout is defined in code.
-  if (isset($layout->export_type)) {
-    // Enabled/disable the layout.
-    if (empty($layout->disabled)) {
-      $link = t('This layout is defined in code') . ': ' . l(t('disable layout.'), 'admin/structure/ds/disable/' . $form['#export_id'], array('query' => backdrop_get_destination()));
-    }
-    else {
-      $link = t('A layout is defined in code but has been disabled') . ': ' . l(t('enable layout.'), 'admin/structure/ds/enable/' . $form['#export_id'], array('query' => backdrop_get_destination()));
-    }
-    $form['additional_settings']['ds_layouts']['enable_disable'] = array(
-      '#markup' => $link,
-      '#weight' => 2,
-    );
-
-    // Overridden in database.
-    if ($layout->export_type == 3) {
-      $form['additional_settings']['ds_layouts']['revert'] = array(
-        '#markup' => l(t('This layout is overridden. Click to revert to default settings.'), 'admin/structure/ds/revert-layout/' . $form['#export_id'], array('query' => backdrop_get_destination())),
-        '#weight' => 1,
-      );
-    }
-  }
-
   // Load the layout preview form
   $layout->layout_options = $layout_options;
   _ds_field_ui_table_layouts_preview($form, $form_state, $ds_layouts, $layout, $entity_type, $bundle, $view_mode);
@@ -2022,7 +1998,7 @@ function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, &$form_s
   );
   // Load views file if entity type is not ds_views.
   // We need to cache the hook it's implementing.
-  if ($entity_type != 'ds_views' && module_exists('ds_extras') && config_get('ds.settings', 'ds_extras_vd')) {
+  if ($entity_type != 'ds_views' && module_exists('ds_extras') && config_get('ds_extras.settings', 'vd')) {
     module_load_include('inc', 'ds_extras', 'includes/ds_extras.vd');
   }
   backdrop_alter('ds_fields_ui', $fields, $context);
@@ -2269,7 +2245,7 @@ function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$f
       }
 
       // Add the field templates form when needed
-      if (module_exists('ds_extras') && $config->get('ds_extras_field_template')) {
+      if (module_exists('ds_extras') && config_get('ds_extras.settings', 'field_template')) {
         $context = array(
           'instance' => $instance,
           'view_mode' => $view_mode,
@@ -2341,7 +2317,7 @@ function _ds_field_ui_core_fields($entity_type, $bundle, $view_mode, &$form, &$f
       );
       backdrop_alter('field_formatter_settings_summary', $summary, $context);
 
-      if (module_exists('ds_extras') && $config->get('ds_extras_field_template')) {
+      if (module_exists('ds_extras') && config_get('ds_extras.settings', 'field_template')) {
         module_load_include('inc', 'ds_extras', 'includes/ds_extras.admin');
 
         // Field template summary

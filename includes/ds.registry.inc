@@ -490,7 +490,7 @@ function _ds_ds_layout_info() {
 
   // Get layouts defined in the active theme and base theme (if applicable).
   $themes = list_themes();
-  $theme = config_get('system.performance', 'theme_default');
+  $theme = config_get('system.core', 'theme_default');
 
   $base_theme = array();
   $ancestor = $theme;

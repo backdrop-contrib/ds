@@ -10,7 +10,6 @@
  */
 function ds_classes_form($form, $form_state) {
   $config = config('ds.settings');
-  $form['#config'] = 'ds_ui.settings';
   $form['#config'] = 'ds.settings';
 
   $form['classes_regions'] = array(

@@ -167,7 +167,7 @@ function ds_ds_fields_info($entity_type) {
   }
 
   // User picture
-  if (config_get('system.performance', 'user_pictures')) {
+  if (config_get('system.core', 'user_pictures')) {
     $key = 'user_picture';
     $type = DS_FIELD_TYPE_IGNORE;
     $picture_formatters = array();
@@ -268,7 +268,7 @@ function ds_ds_fields_info($entity_type) {
     );
 
     // User signature.
-    if (config_get('system.performance', 'user_signatures')) {
+    if (config_get('system.core', 'user_signatures')) {
       $fields['comment']['signature'] = array(
         'title' => t('User signature'),
         'field_type' => DS_FIELD_TYPE_PREPROCESS,
@@ -276,7 +276,7 @@ function ds_ds_fields_info($entity_type) {
     }
 
     // User picture
-    if (config_get('system.performance', 'user_pictures')) {
+    if (config_get('system.core', 'user_pictures')) {
       $key = 'picture';
       $type = DS_FIELD_TYPE_PREPROCESS;
       $picture_formatters = array();
@@ -338,7 +338,7 @@ function ds_ds_fields_info($entity_type) {
   );
 
   // User signature
-  if (config_get('system.performance', 'user_signatures')) {
+  if (config_get('system.core', 'user_signatures')) {
     $fields['user']['user_signature'] = array(
       'title' => t('User signature'),
       'field_type' => DS_FIELD_TYPE_FUNCTION,
@@ -351,7 +351,7 @@ function ds_ds_fields_info($entity_type) {
   }
 
   // User picture
-  if (config_get('system.performance', 'user_pictures')) {
+  if (config_get('system.core', 'user_pictures')) {
     $key = 'user_picture';
     $type = DS_FIELD_TYPE_IGNORE;
     $picture_formatters = array();

@@ -9,22 +9,16 @@
  * Implements hook_install().
  */
 function ds_test_install() {
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('ds_extras_region_to_block', TRUE);
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('ds_extras_switch_view_mode', TRUE);
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('ds_extras_hide_page_title', TRUE);
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('ds_extras_field_template', TRUE);
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('ds_extras_fields_extra', TRUE);
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('ds_extras_hide_page_sidebars', TRUE);
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('ds_extras_fields_extra_list', "node|article|ds_extras_extra_test_field\nnode|article|ds_extras_second_field");
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('ds_extras_vd', TRUE);
+  $config = config('ds_extras.settings');
+
+  $config->set('region_to_block', TRUE);
+  $config->set('switch_view_mode', TRUE);
+  $config->set('hide_page_title', TRUE);
+  $config->set('field_template', TRUE);
+  $config->set('fields_extra', TRUE);
+  $config->set('hide_page_sidebars', TRUE);
+  $config->set('fields_extra_list', "node|article|ds_extras_extra_test_field\nnode|article|ds_extras_second_field");
+  $config->set('vd', TRUE);
 
   db_update('system')
     ->fields(array('weight' => 2))
