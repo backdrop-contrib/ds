@@ -29,10 +29,10 @@ jobs:
       run: unzip ~/coder_review.zip -d ~/
 
     - name: Change to coder review directory
-      run: cd ~/coder_review
+      run: cd ~/coder-issue-12-update-php-codesniffer
 
     - name: Install Codesniffer
       run: composer install
 
     - name: Code review initiated
-      run: ~/.composer/vendor/bin/phpcs --standard=~/Backdrop --extensions=php,module,inc,install,test,css,info,txt,md ./
+      run: ./vendor/bin/phpcs --standard=./coder_sniffer/Backdrop ./
