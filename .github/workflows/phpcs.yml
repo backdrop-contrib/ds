@@ -23,7 +23,7 @@ jobs:
         php-version: ${{ matrix.php_version }}
 
     - name: Git diff
-      run: git branch -a
+      run: git remote show origin
       id: git_diff
 
     - name: Install backdrop/coder
