@@ -22,10 +22,6 @@ jobs:
       with:
         php-version: ${{ matrix.php_version }}
 
-    - name: Git diff
-      run: git remote show origin
-      id: git_diff
-
     - name: Install backdrop/coder
       run: composer global require backdrop/coder
 
