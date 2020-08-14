@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        php_version: ['7.3']
+        php_version: ['5.6']
 
     steps:
     - name: Check out code
@@ -22,18 +22,11 @@ jobs:
       with:
         php-version: ${{ matrix.php_version }}
 
-    - name: Download Coder review
-      run: wget https://github.com/hosef/coder/archive/update-php-codesniffer.zip -O ~/coder_review.zip
-
-    - name: Unzip Coder review
-      run: unzip ~/coder_review.zip -d ~/
-
-    - name: Install Codesniffer
-      run: composer install squizlabs/php_codesniffer:^3.0
-      working-directory: ~/update-php-codesniffer/
+    - name: Install backdrop/coder
+      run: composer global require backdrop/coder
 
     - name: Manually Set Installed Paths
-      run: ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/update-php-codesniffer/coder_sniffer
+      run: ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/backdrop/coder/coder_sniffer
 
     - name: Code review initiated
       run: ~/.composer/vendor/bin/phpcs --standard=Backdrop ./
