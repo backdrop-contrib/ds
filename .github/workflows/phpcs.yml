@@ -31,5 +31,8 @@ jobs:
     - name: Install Codesniffer
       run: composer global require squizlabs/php_codesniffer:^3.0
 
+    - name: Manually Set Installed Paths
+      run: ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/issue-12-update-php-codesniffer/coder_sniffer
+
     - name: Code review initiated
-      run: ~/.composer/vendor/bin/phpcs --standard=~/issue-12-update-php-codesniffer/coder_sniffer/Backdrop ./
+      run: ~/.composer/vendor/bin/phpcs --standard=Backdrop ./
