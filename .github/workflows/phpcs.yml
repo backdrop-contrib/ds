@@ -28,12 +28,8 @@ jobs:
     - name: Unzip Coder review
       run: unzip ~/coder_review.zip -d ~/
 
-    - name: List
-      run: ls -la
-
     - name: Install Codesniffer
-      run: composer install
-      working-directory: ~/coder-issue-12-update-php-codesniffer
+      run: composer global require squizlabs/php_codesniffer:^3.0
 
     - name: Code review initiated
       run: ./vendor/bin/phpcs --standard=./coder_sniffer/Backdrop ./
