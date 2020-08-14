@@ -23,7 +23,7 @@ jobs:
         php-version: ${{ matrix.php_version }}
 
     - name: Git diff
-      run: git diff --name-only origin/1.x-2.x
+      run: git branch -a
       id: git_diff
 
     - name: Install backdrop/coder
@@ -33,4 +33,4 @@ jobs:
       run: ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/backdrop/coder/coder_sniffer
 
     - name: Code review initiated
-      run: ~/.composer/vendor/bin/phpcs --standard=Backdrop ${{ join(steps.git_diff.outputs.*, ' ') }}
+      run: ~/.composer/vendor/bin/phpcs --standard=Backdrop ./
