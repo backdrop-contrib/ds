@@ -65,7 +65,7 @@ function ds_ui_menu() {
     'type' => MENU_LOCAL_ACTION,
     'weight' => 0,
   );
-  $items['admin/structure/ds/fields/manage_ctools'] = array(
+  $items['admin/structure/ds/fields/manage_dynamic'] = array(
     'title' => 'Add a dynamic field',
     'description' => 'Manage a dynamic field',
     'page callback' => 'backdrop_get_form',

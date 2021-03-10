@@ -2475,27 +2475,25 @@ function _ds_field_ui_custom_fields($entity_type, $bundle, $view_mode, &$form, $
 //  ctools_modal_add_js();
 
   $field_types = array(
-    'custom_field' => t('Add a code field'),
-    'manage_ctools' => t('Add a dynamic field'),
+    'manage_custom' => t('Add a code field'),
+    'manage_dynamic' => t('Add a dynamic field'),
     'manage_block' => t('Add a block field'),
     'manage_preprocess' => t('Add a preprocess field'),
   );
 
   foreach ($field_types as $field_key => $field_title) {
 
-    $form['ctools_add_field_' . $field_key . '_url'] = array(
-      '#type' => 'hidden',
-      '#attributes' => array('class' => array('ctools_add_field_' . $field_key . '-url')),
-      '#value' => url('admin/structure/ds/nojs/add_field/' . $field_key),
-    );
-
-    $form['additional_settings']['add_custom_fields']['ctools_add_field_' . $field_key] = array(
-      '#type' => 'button',
-      '#value' => $field_title,
-      '#attributes' => array('class' => array('ctools-use-modal')),
-      '#id' => 'ctools_add_field_' . $field_key,
+    $form['additional_settings']['add_custom_fields']['ds_add_field_' . $field_key] = array(
+      '#type' => 'link',
+      '#title' => $field_title,
+      '#href' => 'admin/structure/ds/fields/' . $field_key,
+      '#attributes' => array(
+        'class' => array('use-ajax', 'button'),
+        'data-dialog' => 'true',
+      ),
     );
   }
+
   $form['additional_settings']['add_custom_fields']['manage_fields'] = array(
     '#type' => 'link',
     '#title' => 'Manage fields',

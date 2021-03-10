@@ -91,7 +91,7 @@ function _ds_menu() {
 //  );
 
   // CTools content.
-  $items['admin/structure/ds/fields/manage_ctools/content'] = array(
+  $items['admin/structure/ds/fields/manage_dynamic/content'] = array(
     'title' => 'Ctools field content',
     'page callback' => 'ds_ctools_content',
     'file' => 'includes/ds.field_ui.inc',
