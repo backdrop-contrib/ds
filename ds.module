@@ -1371,6 +1371,9 @@ function ds_get_layout_settings($entity_type = NULL, $bundle = NULL, $view_mode 
   }
 
   $config_names = config_get_names_with_prefix($prefix);
+  if (empty($config_names)) {
+    return new stdClass();
+  }
 
   $data = array();
   foreach ($config_names as $config_name) {

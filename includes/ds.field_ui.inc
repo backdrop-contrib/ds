@@ -1557,7 +1557,6 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
 
   $layout = ds_get_layout_settings($entity_type, $bundle, $view_mode);
   if (!empty($layout) && isset($layout->layout) && isset($ds_layouts[$layout->layout]) && empty($layout->disabled)) {
-    $layout->settings = $layout->settings;
     $layout->regions = $ds_layouts[$layout->layout]['regions'];
     $form['#ds_layout'] = $layout;
   }
