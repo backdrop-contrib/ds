@@ -267,7 +267,6 @@ function ds_extras_get_view_mode() {
  * Page title options for a full entity page view.
  */
 function ds_extras_preprocess_page_title(&$variables) {
-  dpm(__FUNCTION__);
   $page_title = backdrop_static('ds_page_title');
   if (!empty($page_title)) {
     $variables['title'] = $page_title['title'];
@@ -360,7 +359,6 @@ function ds_extras_form_node_type_form_alter(&$form, $form_state, $form_id) {
 
   // Get the view modes.
   $options = ds_extras_get_bundle_view_modes('node', $node_type);
-  dpm($options);
   // Only fire if we have more than 1 option.
   if (count($options) > 1) {
     if (!isset($form['ds_extras'])) {

@@ -159,7 +159,6 @@ function ds_extras_settings($form) {
 
   $form = system_settings_form($form);
   $form['#submit'][] = 'ds_extras_settings_submit';
-  dpm($form);
   return $form;
 }
 

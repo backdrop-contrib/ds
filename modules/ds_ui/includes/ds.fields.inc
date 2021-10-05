@@ -179,7 +179,6 @@ function ds_shared_form(&$form, $field) {
   $form['#validate'][] = 'ds_shared_form_validate';
   $form['#submit'][] = 'ds_shared_form_submit';
 
-  dpm($form);
   return $field;
 }
 
@@ -254,9 +253,7 @@ function _ds_check_existing_ui_limit($entity_types, $bundle, $view_mode) {
  * Return whether a field machine name is unique.
  */
 function ds_field_unique($name) {
-  dpm($name);
   $config = config('ds.field.' . $name);
-  dpm($config->isNew());
   return !$config->isNew();
 }
 
