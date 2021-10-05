@@ -13,19 +13,19 @@ function ds_contextual_page_tab($object, $entity_type) {
   switch ($entity_type) {
     case 'node':
       $bundle = $object->type;
-      $view_mode = (!empty($object->ds_switch)) ? $object->ds_switch : 'full';
+      $view_mode = (!empty($object->ds_switch)) ? $object->ds_switch : 'default';
 
       // Let's always go back to the node page.
       $destination = 'node/' . $object->nid;
       break;
     case 'user':
       $bundle = 'user';
-      $view_mode = 'full';
+      $view_mode = 'default';
       $destination = 'user/' . $object->uid;
       break;
     case 'taxonomy_term':
-      $bundle = $object->vocabulary_machine_name;
-      $view_mode = 'full';
+      $bundle = $object->vocabulary;
+      $view_mode = 'default';
       $destination = 'taxonomy/term/' . $object->tid;
       break;
   }
