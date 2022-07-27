@@ -372,11 +372,12 @@ function ds_extras_form_node_type_form_alter(&$form, $form_state, $form_id) {
       );
     }
 
+    $defualts = config_get('ds_extras.settings', 'ds_extras_view_modes_' . $node_type);
     $form['ds_extras']['ds_extras_view_modes'] = array(
       '#type' => 'checkboxes',
       '#title' => t('View modes'),
       '#options' => $options,
-      '#default_value' => config_get('ds_extras.settings', 'ds_extras_view_modes_' . $node_type),
+      '#default_value' => !empty($defualts) ? $defualts : array(),
       '#description' => t('Select which view modes will be available to switch to on node edit forms.'),
     );
   }

@@ -9,12 +9,12 @@
  * Implements hook_enable().
  */
 function ds_format_enable() {
-  $format_exists = (bool) db_query_range('SELECT 1 FROM {filter_format} WHERE format = :format', 0, 1, array(':format' => 'ds_code'))->fetchField();
   // Add a Display Suite code text format, if it does not exist. Do this only for the
   // first install (or if the format has been manually deleted) as there is no
   // reliable method to identify the format in an uninstall hook or in
   // subsequent clean installs.
-  if (!$format_exists) {
+  $config = config('filter.format.ds_code.json');
+  if ($config->isNew()) {
     $ds_format = array(
       'format' => 'ds_code',
       'name' => 'Display Suite code',
