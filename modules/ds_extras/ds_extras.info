@@ -1,6 +1,7 @@
 name = "Display Suite Extras"
 description = "Contains additional features for Display Suite."
 backdrop = "1.x"
+type = module
 package = "Display Suite"
 dependencies[] = ds
 configure = admin/structure/ds/list/extras

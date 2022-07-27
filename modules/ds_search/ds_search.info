@@ -1,6 +1,7 @@
 name = "Display Suite Search"
 description = "Extend the display options for search results for Drupal Core or Apache Solr."
 backdrop = "1.x"
+type = module
 package = "Display Suite"
 dependencies[] = ds
 configure = admin/structure/ds/list/search

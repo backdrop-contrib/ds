@@ -1,5 +1,6 @@
 name = "Display Suite UI"
 description = "User interface for managing fields, view modes and classes."
 backdrop = "1.x"
+type = module
 package = "Display Suite"
 dependencies[] = ds

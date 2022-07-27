@@ -1,5 +1,6 @@
 name = "Display Suite"
 description = "Extend the display options for every entity type."
 backdrop = "1.x"
+type = module
 package = "Display Suite"
 configure = admin/structure/ds
