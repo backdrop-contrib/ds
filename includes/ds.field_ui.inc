@@ -2534,13 +2534,14 @@ function _ds_field_valid($key, $field, &$form_state, $view_mode = 'default') {
 /**
  * Utility function to return CSS classes.
  */
-function _ds_classes($name = 'ds_classes_regions') {
+function _ds_classes($name = 'classes_regions') {
   static $classes = array();
 
   if (!isset($classes[$name])) {
+    $config = config('ds.settings');
+
     $classes[$name] = array();
-    // TODO This variable was probably removed in Backdrop without replacement.
-    $custom_classes = trim(variable_get($name, ''));
+    $custom_classes = trim($config->get($name));
     if (!empty($custom_classes)) {
       $classes[$name][''] = t('None');
       $custom_classes = explode("\n", $custom_classes);

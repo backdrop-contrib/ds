@@ -84,30 +84,12 @@ function ds_extras_schema_alter(&$schema) {
     );
   }
 }
-
+_ds_classes();
 /**
  * Implements hook_uninstall().
  */
 function ds_extras_uninstall() {
-  config_clear('ds_extras.settings', 'ds_extras_region_to_block');
-  config_clear('ds_extras.settings', 'ds_extras_region_blocks');
-  config_clear('ds_extras.settings', 'ds_extras_switch_view_mode');
-  config_clear('ds_extras.settings', 'ds_extras_vd');
-  config_clear('ds_extras.settings', 'ds_extras_hide_page_title');
-  config_clear('ds_extras.settings', 'ds_extras_field_template');
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_del('ds_classes_fields');
-  config_clear('ds_extras.settings', 'ds_extras_fields_extra');
-  config_clear('ds_extras.settings', 'ds_extras_fields_extra_list');
-  config_clear('ds_extras.settings', 'ds_extras_switch_field');
-  config_clear('ds_extras.settings', 'ds_extras_editor_switch');
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_del('ft-default');
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_del('ft-kill-colon');
-  config_clear('ds_extras.settings', 'ds_extras_flag');
-  config_clear('ds_extras.settings', 'ds_extras_hidden_region');
-  config_clear('ds_extras.settings', 'ds_extras_hide_page_sidebars');
+  config('ds_extras.settings')->delete();
   db_drop_field('node_revision', 'ds_switch');
 }
 
@@ -126,21 +108,24 @@ function ds_extras_update_last_removed() {
  */
 function ds_extras_update_1000() {
   $config = config('ds_extras.settings');
-  $config->set('ds_extras_switch_field', update_variable_get('ds_extras_switch_field', ''));
-  $config->set('ds_extras_flag', update_variable_get('ds_extras_flag', 'FALSE'));
-  $config->set('ds_extras_vd', update_variable_get('ds_extras_vd', 'FALSE'));
-  $config->set('ds_extras_hidden_region', update_variable_get('ds_extras_hidden_region', 'FALSE'));
-  $config->set('ds_extras_switch_view_mode', update_variable_get('ds_extras_switch_view_mode', 'FALSE'));
-  $config->set('ds_extras_field_permissions', update_variable_get('ds_extras_field_permissions', 'FALSE'));
-  $config->set('ds_extras_region_blocks', update_variable_get('ds_extras_region_blocks', 'dynamic value in file /ds/modules/ds_extras/includes/ds_extras.admin.inc line 598'));
-  $config->set('ds_extras_view_modes_node_type', update_variable_get('ds_extras_view_modes_node_type', 'dynamic variable in file /ds/modules/ds_extras/ds_extras.module line 368'));
-  $config->set('ds_extras_view_modes_nodetype', update_variable_get('ds_extras_view_modes_nodetype', 'dynamic variable in file /ds/modules/ds_extras/ds_extras.module line 385'));
-  $config->set('ds_extras_fields_extra', update_variable_get('ds_extras_fields_extra', 'FALSE'));
-  $config->set('ds_extras_fields_extra_list', update_variable_get('ds_extras_fields_extra_list', 'FALSE'));
-  $config->set('ds_extras_hide_page_title', update_variable_get('ds_extras_hide_page_title', 'FALSE'));
-  $config->set('ds_extras_field_template', update_variable_get('ds_extras_field_template', 'FALSE'));
-  $config->set('ds_extras_hide_page_sidebars', update_variable_get('ds_extras_hide_page_sidebars', 'FALSE'));
-  $config->set('ds_extras_region_to_block', update_variable_get('ds_extras_region_to_block', 'FALSE'));
+  $config->set('switch_field', update_variable_get('ds_extras_switch_field', ''));
+  $config->set('flag', update_variable_get('ds_extras_flag', FALSE));
+  $config->set('vd', update_variable_get('ds_extras_vd', FALSE));
+  $config->set('hidden_region', update_variable_get('ds_extras_hidden_region', FALSE));
+  $config->set('switch_view_mode', update_variable_get('ds_extras_switch_view_mode', FALSE));
+  $config->set('field_permissions', update_variable_get('ds_extras_field_permissions', FALSE));
+  $config->set('region_blocks', update_variable_get('ds_extras_region_blocks', 'dynamic value in file /ds/modules/ds_extras/includes/ds_extras.admin.inc line 598'));
+  $config->set('view_modes_node_type', update_variable_get('ds_extras_view_modes_node_type', 'dynamic variable in file /ds/modules/ds_extras/ds_extras.module line 368'));
+  $config->set('view_modes_nodetype', update_variable_get('ds_extras_view_modes_nodetype', 'dynamic variable in file /ds/modules/ds_extras/ds_extras.module line 385'));
+  $config->set('fields_extra', update_variable_get('ds_extras_fields_extra', FALSE));
+  $config->set('fields_extra_list', update_variable_get('ds_extras_fields_extra_list', FALSE));
+  $config->set('hide_page_title', update_variable_get('ds_extras_hide_page_title', FALSE));
+  $config->set('field_template', update_variable_get('ds_extras_field_template', FALSE));
+  $config->set('hide_page_sidebars', update_variable_get('ds_extras_hide_page_sidebars', FALSE));
+  $config->set('region_to_block', update_variable_get('ds_extras_region_to_block', FALSE));
+  $config->set('region_to_block', update_variable_get('ds_extras_region_to_block', FALSE));
+  $config->set('ft-default', update_variable_get('ft-default', FALSE));
+  $config->set('ft-kill-colon', update_variable_get('ft-kill-colon', FALSE));
   update_variable_del('ds_extras_switch_field');
   update_variable_del('ds_extras_flag');
   update_variable_del('ds_extras_vd');
@@ -156,4 +141,7 @@ function ds_extras_update_1000() {
   update_variable_del('ds_extras_field_template');
   update_variable_del('ds_extras_hide_page_sidebars');
   update_variable_del('ds_extras_region_to_block');
+  update_variable_del('ds_extras_region_to_block');
+  update_variable_del('ft-default');
+  update_variable_del('ft-kill-colon');
 }

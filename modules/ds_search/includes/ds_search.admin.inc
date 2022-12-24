@@ -10,8 +10,8 @@
  */
 function ds_search_settings($form, $form_state) {
   $config = config('ds_search.settings');
-
   $form['#config'] = 'ds_search.settings';
+
   $form['general'] = array(
     '#type' => 'fieldset',
     '#title' => t('General'),
@@ -307,12 +307,11 @@ function ds_search_settings($form, $form_state) {
       '#title' => t('User search'),
     );
 
-    // TODO This variable was probably removed in Backdrop without replacement.
-    $form['user']['ds_user_override_search_page'] = array(
+    $form['user']['user_override_search_page'] = array(
       '#type' => 'checkbox',
       '#title' => t('Override user search page'),
       '#description' => t('Toggle this checkbox if you want Display Suite to render user search results.'),
-      '#default_value' => variable_get('ds_user_override_search_page'),
+      '#default_value' => $config->get('user_override_search_page'),
     );
   }
 
@@ -326,8 +325,7 @@ function ds_search_settings($form, $form_state) {
  */
 function ds_search_settings_submit($form, $form_state) {
   // Rebuild the menu.
-  // TODO This variable was probably removed in Backdrop without replacement.
-  variable_set('menu_rebuild_needed', TRUE);
+  state_set('menu_rebuild_needed', TRUE);
 }
 
 /**

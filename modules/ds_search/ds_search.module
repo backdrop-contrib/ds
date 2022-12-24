@@ -527,8 +527,7 @@ function node_ds_search_execute($keys = NULL, $conditions = NULL) {
 /**
  * Override search results page for users.
  */
-// TODO This variable was probably removed in Backdrop without replacement.
-if (variable_get('ds_user_override_search_page', FALSE)) {
+if ($config->get('user_override_search_page')) {
   function user_search_page($results) {
     $build = array('#type' => 'user');
     global $base_url;

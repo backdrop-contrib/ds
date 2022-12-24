@@ -428,6 +428,8 @@ function ds_config_info() {
     'label' => t('Module name settings'),
     'group' => t('Configuration'),
   );
+
+  return $prefixes;
 }
 
 /**
@@ -622,13 +624,13 @@ function ds_entity_variables(&$vars) {
     }
     else {
       // Template layout.
-      if (!isset($vars['classes_array'])) {
-        $vars['classes_array'] = array();
+      if (!isset($vars['classes'])) {
+        $vars['classes'] = array();
       }
 
       // Add view-mode-{name} to classes.
-      if (!in_array('view-mode-' . $vars['elements']['#view_mode'], $vars['classes_array'])) {
-        $vars['classes_array'][] = 'view-mode-' . $vars['elements']['#view_mode'];
+      if (!in_array('view-mode-' . $vars['elements']['#view_mode'], $vars['classes'])) {
+        $vars['classes'][] = 'view-mode-' . $vars['elements']['#view_mode'];
       }
 
       // In case this is a panels layout, use panels info array.
@@ -650,7 +652,7 @@ function ds_entity_variables(&$vars) {
     // If the layout has wrapper class lets add it.
     if (isset($layout['settings']['classes']['layout_class'])) {
       foreach ($layout['settings']['classes']['layout_class'] as $layout_class) {
-        $vars['classes_array'][] = $layout_class;
+        $vars['classes'][] = $layout_class;
       }
     }
 
@@ -708,7 +710,7 @@ function ds_entity_variables(&$vars) {
     if (!empty($layout['settings']['layout_attributes_merge'])) {
       // Handle classes separately.
       if (isset($vars['attributes_array']['class'])) {
-        $vars['classes_array'] = array_unique(array_merge($vars['classes_array'], $vars['attributes_array']['class']));
+        $vars['classes'] = array_unique(array_merge($vars['classes'], $vars['attributes_array']['class']));
         unset($vars['attributes_array']['class']);
       }
       $vars['layout_attributes'] .= ' ' . backdrop_attributes($vars['attributes']);
@@ -716,7 +718,7 @@ function ds_entity_variables(&$vars) {
 
     // Token support for layout classes.
     if (module_exists('token') && isset($vars[$entity_type])) {
-      foreach ($vars['classes_array'] as &$class) {
+      foreach ($vars['classes'] as &$class) {
         $class = token_replace($class, array($entity_type => $vars[$entity_type]), array('clear' => TRUE, 'sanitize' => TRUE));
       }
     }

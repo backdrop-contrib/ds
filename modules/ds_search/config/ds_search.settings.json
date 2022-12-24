@@ -21,5 +21,6 @@
     "apachesolr_hide_current_filters": "",
     "apachesolr_current_filters_default": "",
     "apachesolr_multisite_boost": "",
-    "apachesolr_multisite_boost_nr": "100"
+    "apachesolr_multisite_boost_nr": "100",
+    "user_override_search_page": false
 }

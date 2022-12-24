@@ -1740,7 +1740,7 @@ class dsSearchTests extends dsBaseTest {
     $this->dsConfigureUI($fields, 'admin/structure/types/manage/article/display/search_result');
 
     // Configure ds search.
-    $edit = array('ds_user_override_search_page' => '1');
+    $edit = array('user_override_search_page' => '1');
     $this->backdropPost('admin/structure/ds/list/search', $edit, t('Save configuration'));
 
     // Let's search.
