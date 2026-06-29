@@ -269,12 +269,14 @@ function _ds_theme_registry_alter(&$theme_registry) {
 
   // Inject ds_entity_variables in all entity theming functions.
   $entity_info = entity_get_info();
+  $entities = array();
   foreach ($entity_info as $entity => $info) {
     if (isset($entity_info[$entity]['fieldable']) && $entity_info[$entity]['fieldable']) {
 
       // User uses user_profile for theming.
       if ($entity == 'user') {
         $entity = 'user_profile';
+        $entities[] = $entity;
       }
 
       // Only add preprocess functions if entity exposes theme function.
@@ -286,12 +288,32 @@ function _ds_theme_registry_alter(&$theme_registry) {
 
   // Support for File Entity.
   if (isset($theme_registry['file_entity'])) {
+    $entities[] = 'file_entity';
     $theme_registry['file_entity']['preprocess functions'][] = 'ds_entity_variables';
   }
 
   // Support for Entity API.
   if (isset($theme_registry['entity'])) {
+    $entities[] = 'entity';
     $theme_registry['entity']['preprocess functions'][] = 'ds_entity_variables';
+  }
+
+  // Support for Entity Plus API.
+  if (isset($theme_registry['entity_plus'])) {
+    $entities[] = 'entity_plus';
+  }
+
+  if (module_exists('field_group')) {
+    foreach ($entities as $entity) {
+      if (isset($theme_registry[$entity])) {
+        $theme_registry[$entity]['preprocess functions'][] = 'field_group_build_entity_groups';
+        // Make sure DS comes after field_group.
+        if ($key = array_search('ds_entity_variables', $theme_registry[$entity]['preprocess functions'])) {
+          unset($theme_registry[$entity]['preprocess functions'][$key]);
+          $theme_registry[$entity]['preprocess functions'][] = 'ds_entity_variables';
+        }
+      }
+    }
   }
 }
 
