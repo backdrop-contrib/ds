@@ -306,7 +306,10 @@ function _ds_theme_registry_alter(&$theme_registry) {
   if (module_exists('field_group')) {
     foreach ($entities as $entity) {
       if (isset($theme_registry[$entity])) {
-        $theme_registry[$entity]['preprocess functions'][] = 'field_group_build_entity_groups';
+        if ($key = array_search('field_group_build_entity_groups', $theme_registry[$entity]['preprocess functions'])) {
+          unset($theme_registry[$entity]['preprocess functions'][$key]);
+          $theme_registry[$entity]['preprocess functions'][] = 'field_group_build_entity_groups';
+        }
         // Make sure DS comes after field_group.
         if ($key = array_search('ds_entity_variables', $theme_registry[$entity]['preprocess functions'])) {
           unset($theme_registry[$entity]['preprocess functions'][$key]);
